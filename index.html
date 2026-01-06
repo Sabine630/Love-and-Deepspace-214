@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>戀與深空 2.14 情人節企劃</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-deep: #05080c;
+            --accent: #e0e6ed; /* 預設改為鈦金銀 (Titanium Silver) */
+            --glass-bg: rgba(12, 18, 26, 0.85);
+            --tech-font: 'Orbitron', sans-serif;
+            --body-font: 'Noto Sans TC', sans-serif;
+        }
+
+        body { 
+            background-color: var(--bg-deep); 
+            color: #ffffff; 
+            font-family: var(--body-font); 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            /* 深空動態背景 */
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(20, 30, 50, 0.4) 0%, var(--bg-deep) 100%),
+                linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            overflow: hidden;
+        }
+
+        /* 全螢幕掃描線特效 (CRT Effect) */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.6;
+        }
+
+        /* 獵人終端機主體 */
+        #game-box {
+            width: 88%;
+            max-width: 460px;
+            padding: 35px 25px;
+            background: var(--glass-bg);
+            /* 毛玻璃模糊 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            
+            /* 科技感發光邊框 */
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 25px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            
+            /* 經典的切角造型 */
+            clip-path: polygon(
+                20px 0, 100% 0, 
+                100% calc(100% - 20px), calc(100% - 20px) 100%, 
+                0 100%, 0 20px
+            );
+            
+            position: relative;
+            transition: border-color 0.6s ease, box-shadow 0.6s ease;
+        }
+
+        /* 頂部裝飾亮條 */
+        #game-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20px; right: 20px;
+            height: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transition: background 0.6s ease;
+        }
+
+        /* 頂部數據列 (HUD Header) */
+        .hud-header {
+            font-family: var(--tech-font);
+            font-size: 10px;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            opacity: 0.7;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        /* 名字標籤 */
+        .name-label {
+            font-family: var(--tech-font);
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: inline-block;
+            letter-spacing: 2px;
+            border-left: 3px solid var(--accent);
+            padding-left: 8px;
+            transition: color 0.6s ease, border-color 0.6s ease;
+        }
+
+        /* 對話內容 */
+        #text {
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 35px;
+            min-height: 80px;
+            text-align: justify;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            white-space: pre-wrap;
+            color: #f0f0f0;
+        }
+
+        /* 選項按鈕 */
+        .btn {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-left: 3px solid var(--accent); /* 左側強調線 */
+            color: #d0d0d0;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            font-family: var(--body-font);
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* 微切角 */
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 0 20px var(--accent);
+            padding-left: 30px; /* 滑動效果 */
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+
+    <div id="game-box">
+        <div class="hud-header">
+            <span>Signal: <span id="signal-status">SEARCHING...</span></span>
+            <span>ERR_214</span>
+        </div>
+        
+        <div id="content-area">
+            <div id="name-display"></div>
+            <div id="text">系統初始化中...</div>
+        </div>
+
+        <div id="options"></div>
+    </div>
+
+    <script>
+        // === 1. 完整劇本資料庫 ===
+        const story = {
+            // === 共用開場：改為鈦金銀 (Titanium Silver) 以區分黎深 ===
+            start: {
+                name: "SYSTEM",
+                status: "SEARCHING...",
+                msg: "2月14日，原本是個充滿巧克力的日子。但對於深空獵人來說，今天卻是個充滿「磁場亂流」的日子。\n\n通訊器上閃爍著錯誤代碼......這種時候，我最想聯繫的人是？",
+                color: "#e0e6ed", // 銀白色
+                choices: [
+                    { t: "➜ 聯絡 黎深 (Zayne)", n: "zayne_1", color: "hsla(195, 100%, 75%, 1)" },
+                    { t: "➜ 聯絡 祁煜 (Rafayel)", n: "rafayel_1", color: "hsla(335, 100%, 70%, 1)" },
+                    { t: "➜ 聯絡 沈星回 (Xavier)", n: "xavier_1", color: "hsla(265, 90%, 75%, 1)" },
+                    { t: "➜ 聯絡 秦徹 (Sylus)", n: "sylus_1", color: "hsla(0, 100%, 65%, 1)" },
+                    { t: "➜ 聯絡 夏以晝 (Caleb)", n: "caleb_1", color: "hsla(40, 100%, 60%, 1)" }
+                ]
+            },
+
+            // 黎深 - 冰川藍 (Ice Glitch Blue)
+            zayne_1: {
+                name: "ZAYNE",
+                status: "CONNECTED",
+                msg: "「......滋......聽得見嗎？......手術剛結束......但我偵測到妳那邊的數值......波動異常......」\n\n「別亂跑......外面雪很大......我需要確認妳的......（雜訊）......心臟......」",
+                color: "hsla(190, 100%, 70%, 1)", // 更偏青藍色，區別於系統
+                choices: [
+                    { t: "他是不是出事了？！（焦急）", n: "zayne_funny_end" },
+                    { t: "他是在擔心我吧？（冷靜）", n: "zayne_scene2" }
+                ]
+            },
+            zayne_funny_end: {
+                name: "SYSTEM",
+                status: "OFFLINE",
+                msg: "結局：【過度反應的家屬】\n\n妳不顧一切衝進急診室，結果發現他只是在辦公室休息。他傳訊來：「我看著妳衝進來的。上來吧，順便把臉上的雪擦一擦，雪人小姐。」",
+                color: "hsla(190, 100%, 70%, 1)",
+                choices: [{ t: "↻ 重新選擇", n: "zayne_1" }]
+            },
+            zayne_scene2: {
+                name: "ZAYNE",
+                status: "STABLE",
+                msg: "昏暗的辦公室裡，他脫了白袍，眼神緊鎖著妳。\n\n「過來。讓我看看。磁場波動會影響心律，妳剛才一路跑過來，呼吸頻率過快。」",
+                color: "hsla(190, 100%, 70%, 1)",
+                choices: [
+                    { t: "乖乖走過去伸手（溫順撒嬌）", n: "zayne_sweet" },
+                    { t: "倚在門口：「現在是下班時間喔」（調皮挑逗）", n: "zayne_spicy" }
+                ]
+            },
+            zayne_sweet: {
+                name: "ZAYNE",
+                status: "STABLE",
+                msg: "他指尖搭上妳的脈搏，反手握住，用Evol替妳取暖。\n\n「......笨蛋。這種天氣不准亂跑。聽話的話......有獎勵。」",
+                color: "hsla(190, 100%, 70%, 1)",
+                choices: [{ t: "領取獎勵", n: "zayne_true_end" }]
+            },
+            zayne_spicy: {
+                name: "ZAYNE",
+                status: "WARNING",
+                msg: "冰霜封住了門。他走到妳面前，單手撐在門板上。\n\n「逃診是嚴重違反醫囑的行為。我有必要採取強制措施......讓妳的心跳恢復『正常』，或者更亂。」",
+                color: "hsla(190, 100%, 70%, 1)",
+                choices: [{ t: "接受處置", n: "zayne_true_end" }]
+            },
+            zayne_true_end: {
+                name: "ACHIEVEMENT",
+                status: "SAVED",
+                msg: "獲得成就：【零度下的專屬心跳】\n\n他托著一顆被薄冰包裹的馬卡龍：「原本準備的巧克力快融化了。張嘴，這是情人節特供的『處方藥』。」",
+                color: "hsla(190, 100%, 70%, 1)",
+                choices: [{ t: "⌂ 回到主選單", n: "start" }]
+            },
+
+            // 祁煜 - 珊瑚粉
+            rafayel_1: {
+                name: "RAFAYEL",
+                status: "INCOMING CALL...",
+                msg: "收到 24 則未讀訊息。\n\n語音：「......限妳三分鐘......出現在我面前......不然我就......滋......把工作室燒了當信號彈給妳看......滋......」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [
+                    { t: "太危險了，快報警！（Funny End）", n: "rafayel_funny_end" },
+                    { t: "他在撒嬌，直接去畫室。", n: "rafayel_scene2" }
+                ]
+            },
+            rafayel_funny_end: {
+                name: "SYSTEM",
+                status: "OFFLINE",
+                msg: "結局：【滅火器破壞者】\n\n妳帶著消防員踹開門，發現祁煜正優雅地拿著調色盤。\n\n「......哇哦。我說的『火熱』指的可不是滅火器派對，保鏢小姐。」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [{ t: "↻ 重新選擇", n: "rafayel_1" }]
+            },
+            rafayel_scene2: {
+                name: "RAFAYEL",
+                status: "CONNECTED",
+                msg: "畫室一片漆黑。他背對著妳轉筆，語氣委屈又傲嬌。\n\n「遲到一分鐘，扣一張畫。我的靈感都被妳嚇跑了！妳知不知道我剛才......嘖。妳打算怎麼賠？」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [
+                    { t: "誇獎他的畫（轉移注意力）", n: "rafayel_sweet" },
+                    { t: "湊近看他的眼睛（直球進攻）", n: "rafayel_spicy" }
+                ]
+            },
+            rafayel_sweet: {
+                name: "RAFAYEL",
+                status: "CONNECTED",
+                msg: "他試圖遮擋畫布，耳根微紅：「別看！......因為模特兒遲到了！」\n\n隨即一把將妳拉進懷裡：「既然來了，就別想走。今晚的模特兒費用很貴的。」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [{ t: "查看驚喜", n: "rafayel_true_end" }]
+            },
+            rafayel_spicy: {
+                name: "RAFAYEL",
+                status: "BURNING",
+                msg: "妳笑問他眼睛紅紅的是不是哭過。他惱羞成怒，周圍燃起紫色火焰。\n\n「敢嘲笑雇主？看來我有必要讓妳知道......惹火我會有什麼後果。」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [{ t: "查看驚喜", n: "rafayel_true_end" }]
+            },
+            rafayel_true_end: {
+                name: "ACHIEVEMENT",
+                status: "SAVED",
+                msg: "獲得成就：【深海裡的烈火】\n\n響指一彈，畫室裡無數幅用螢光顏料畫的「妳」同時亮起，如同深海星空。\n\n「每一張都是寶貝......跟妳一樣。」",
+                color: "hsla(340, 100%, 75%, 1)",
+                choices: [{ t: "⌂ 回到主選單", n: "start" }]
+            },
+
+            // 沈星回 - 星系紫
+            xavier_1: {
+                name: "XAVIER",
+                status: "SIGNAL WEAK",
+                msg: "簡訊：「......抱歉，晚餐可能要遲到了。」\n「......身上有點『亮』。」\n「......我待在老地方，等波動過去。妳別亂跑，乖。」",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [
+                    { t: "在餐廳等他。（Normal End）", n: "xavier_normal_end" },
+                    { t: "去老地方找他！（True End）", n: "xavier_scene2" }
+                ]
+            },
+            xavier_normal_end: {
+                name: "SYSTEM",
+                status: "OFFLINE",
+                msg: "結局：【錯過的晚餐】\n\n妳在餐廳等到很晚。他終於趕到了，雖然笑著，但看起來很疲憊。「抱歉，久等了。」\n雖然一起吃了飯，但總覺得錯過了什麼重要的事。",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [{ t: "↻ 重新選擇", n: "xavier_1" }]
+            },
+            xavier_scene2: {
+                name: "XAVIER",
+                status: "OVERLOAD",
+                msg: "廢棄觀星台被柔和的白光籠罩。他坐在石階上，把玩著手中溢出的光點。\n\n「......不是叫妳別來嗎？這裡光汙染嚴重，會刺眼。」",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [
+                    { t: "坐在他旁邊：「那就一起亮啊。」", n: "xavier_story" },
+                    { t: "握住他的手：「我幫你穩定下來。」", n: "xavier_lore" }
+                ]
+            },
+            xavier_story: {
+                name: "XAVIER",
+                status: "CALMING",
+                msg: "他仰頭看著天空：「以前覺得這種波動很煩，只想找個黑洞躲起來。但現在，好像沒那麼討厭了......因為妳總能找到我。」",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [{ t: "接收禮物", n: "xavier_true_end" }]
+            },
+            xavier_lore: {
+                name: "XAVIER",
+                status: "STABLE",
+                msg: "接觸的瞬間，狂暴的光元素平靜下來。他反手握緊妳的手，力道大得像是怕妳消失。\n\n「......狡猾。明明知道這招對我最有效。就這樣別動，讓我靠一下。」",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [{ t: "接收禮物", n: "xavier_true_end" }]
+            },
+            xavier_true_end: {
+                name: "ACHIEVEMENT",
+                status: "SAVED",
+                msg: "獲得成就：【跨越光年的座標】\n\n他將一顆微小的光球融入妳的項鍊。\n\n「這是我的座標。只要它亮著，不管妳在哪，我都能以光速回到妳身邊。送給妳......無限期的使用權。」",
+                color: "hsla(265, 90%, 80%, 1)",
+                choices: [{ t: "⌂ 回到主選單", n: "start" }]
+            },
+
+            // 秦徹 - 能量紅
+            sylus_1: {
+                name: "SYLUS",
+                status: "ENCRYPTED",
+                msg: "（響指聲，所有雜訊瞬間消失）\n\n「......吵死了。現在清靜多了。頭還痛嗎？小狸花。」\n\n他動用權限物理屏蔽了所有干擾訊號。現在全世界只聽得到他的聲音。",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [
+                    { t: "鬆了口氣：「謝了，剛快聾了。」", n: "sylus_trust" },
+                    { t: "疑惑：「你怎麼做到的？」", n: "sylus_lore" }
+                ]
+            },
+            sylus_trust: {
+                name: "SYLUS",
+                status: "CONNECTED",
+                msg: "「我不喜歡和我說話的時候，有雜音插嘴。」\n\n一隻機械烏鴉停在路燈上。「跟著梅菲斯特，來個安靜的地方。」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [{ t: "前往高塔", n: "sylus_scene2" }]
+            },
+            sylus_lore: {
+                name: "SYLUS",
+                status: "CONNECTED",
+                msg: "「只要我想，磁場也得讓路。不過......我也只幫妳開了這條路。要我親自下去抱妳上來嗎？」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [{ t: "前往高塔", n: "sylus_scene2" }]
+            },
+            sylus_scene2: {
+                name: "SYLUS",
+                status: "PRIVATE CH",
+                msg: "高塔之上遠離喧囂。他靠在欄杆邊晃著紅酒。\n\n「今天是情人節，我有東西要給妳。」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [
+                    { t: "伸手：「拿來吧，大首領。」", n: "sylus_gift" },
+                    { t: "靠過去：「先借我充電。」", n: "sylus_resonance" }
+                ]
+            },
+            sylus_gift: {
+                name: "SYLUS",
+                status: "PRIVATE CH",
+                msg: "他拿出一個抗干擾通訊器：「裡面加載了我的共鳴頻率。以後再遇到這種情況，按一下。全世界，只聽得到我。」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [{ t: "接受特權", n: "sylus_true_end" }]
+            },
+            sylus_resonance: {
+                name: "SYLUS",
+                status: "RESONATING",
+                msg: "紅色的能量場像護盾一樣張開，隔絕了風雪。他自然地摟住妳：「......真會使喚人。但我准了。」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [{ t: "接受特權", n: "sylus_true_end" }]
+            },
+            sylus_true_end: {
+                name: "ACHIEVEMENT",
+                status: "SAVED",
+                msg: "獲得成就：【靜默頻率的特權】\n\n他幫妳戴上通訊器，手指輕捏妳的耳垂。\n\n「聽好了。無論外面多吵，只要戴上這個，我就在。這是妳的特權。」",
+                color: "hsla(0, 100%, 65%, 1)",
+                choices: [{ t: "⌂ 回到主選單", n: "start" }]
+            },
+
+            // 夏以晝 - 暖陽橙
+            caleb_1: {
+                name: "CALEB",
+                status: "HOME",
+                msg: "屋裡瀰漫著燉湯的暖香。夏以晝端上菜：\n\n「回來了？洗手吃飯。今天外面亂成一團，只有家裡最安靜。陪妳吃飯，本來就是我的最高指令。誰敢有意見？」",
+                color: "hsla(35, 100%, 60%, 1)",
+                choices: [
+                    { t: "接過湯碗，享受晚餐", n: "caleb_glitch" }
+                ]
+            },
+            caleb_glitch: {
+                name: "CALEB",
+                status: "ERR_SIGNAL",
+                msg: "（電流滋滋聲）\n\n倒水時，他的機械手臂突然僵住，水壺懸停在空中。他穩住水壺，眼神閃過一絲落寞。\n\n「......抱歉。看來神經傳輸受到干擾了。嚇到妳了嗎？」",
+                color: "hsla(35, 100%, 60%, 1)",
+                choices: [
+                    { t: "開玩笑：「你的Evol還是這麼準！」", n: "caleb_playful" },
+                    { t: "握住他的手：「讓我看看，會痛嗎？」", n: "caleb_touch" }
+                ]
+            },
+            caleb_playful: {
+                name: "CALEB",
+                status: "STABLE",
+                msg: "妳拋起一顆櫻桃，他精準地用重力捕獲，無奈地笑了：「妳啊......這時候還想著玩。」\n\n氣氛輕鬆了下來。「吃完這顆，有正經禮物給妳。」",
+                color: "hsla(35, 100%, 60%, 1)",
+                choices: [{ t: "領取禮物", n: "caleb_true_end" }]
+            },
+            caleb_touch: {
+                name: "CALEB",
+                status: "STABLE",
+                msg: "妳用體溫安撫冰冷的機械關節。他反手扣住妳的手，十指緊扣。\n\n「敗給妳了......妳一碰我，雜音就消失了。看來妳才是我的『穩定劑』。」",
+                color: "hsla(35, 100%, 60%, 1)",
+                choices: [{ t: "領取禮物", n: "caleb_true_end" }]
+            },
+            caleb_true_end: {
+                name: "ACHIEVEMENT",
+                status: "SAVED",
+                msg: "獲得成就：【恆溫的守護者】\n\n他送妳一顆夕曜石蘋果項鍊，貼在妳心口暖暖的。\n\n「它永遠不會冷卻。就像我對妳的引力一樣——穿越光年，恆久不變。情人節快樂，我的小蘋果。」",
+                color: "hsla(35, 100%, 60%, 1)",
+                choices: [{ t: "⌂ 回到主選單", n: "start" }]
+            }
+        };
+
+        // === 2. 核心顯示引擎 (打字機特效版) ===
+        let typeWriterInterval;
+
+        function show(id) {
+            const data = story[id];
+            if (!data) return;
+
+            const textDiv = document.getElementById('text');
+            const nameDiv = document.getElementById('name-display');
+            const statusDiv = document.getElementById('signal-status');
+            const optDiv = document.getElementById('options');
+            const gameBox = document.getElementById('game-box');
+            
+            // 清除之前的打字機效果
+            if (typeWriterInterval) clearInterval(typeWriterInterval);
+            optDiv.innerHTML = ''; 
+
+            // 設定 CSS 變數
+            document.documentElement.style.setProperty('--accent', data.color || '#e0e6ed');
+
+            // 更新頂部狀態
+            statusDiv.innerText = data.status || "SEARCHING...";
+
+            // 顯示名字 (如果有)
+            if (data.name) {
+                nameDiv.innerHTML = `<span class="name-label">${data.name}</span>`;
+            } else {
+                nameDiv.innerHTML = '';
+            }
+
+            // 打字機效果
+            const fullText = data.msg;
+            let charIndex = 0;
+            textDiv.innerHTML = ''; // 清空
+            
+            typeWriterInterval = setInterval(() => {
+                if (charIndex < fullText.length) {
+                    textDiv.innerText += fullText.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(typeWriterInterval);
+                    renderButtons(data.choices, data.color);
+                }
+            }, 15);
+        }
+
+        function renderButtons(choices, themeColor) {
+            const optDiv = document.getElementById('options');
+            optDiv.innerHTML = '';
+            
+            choices.forEach(c => {
+                const b = document.createElement('button');
+                b.className = 'btn';
+                b.innerText = c.t;
+                b.onclick = () => show(c.n);
+                optDiv.appendChild(b);
+                
+                // 簡單的淡入動畫
+                b.style.opacity = '0';
+                setTimeout(() => b.style.opacity = '1', 100);
+            });
+        }
+
+        // 啟動
+        show('start');
+    </script>
+</body>
+</html>
