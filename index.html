@@ -313,25 +313,25 @@
 
             // === 沈星回 (Xavier) V9.5 ===
             xavier_1: { theme: "xavier", status: "SIGNAL WEAK", type: "narration", text: "通訊頻道的訊號燈忽明忽滅，耳邊傳來的不像是電流聲，更像是一種高頻的能量嗡鳴。接著，沈星回的聲音斷斷續續地傳來。", next: "xavier_2" },
-            xavier_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......抱歉。今天的晚餐......我可能要遲到了。", next: "xavier_3" },
-            xavier_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "我身上的能量波動有點大......也就是俗話說的，有點『亮』。怕嚇到路人，我在『老地方』等它平靜下來。", next: "xavier_4" },
-            xavier_4: { theme: "xavier", type: "dialogue", name: "沈星回", text: "妳先吃，別餓著。乖，別過來找我，這裡......光污染挺嚴重的。", choices: [{ t: "乖巧：「好吧，那我在餐廳邊吃邊等你。」", n: "xavier_wait_route" }, { t: "叛逆：「光污染？我帶墨鏡去找你！」", n: "xavier_find_route" }] },
+            xavier_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......對不起。今天的晚餐......我可能要遲到了。", next: "xavier_3" },
+            xavier_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "我現在...有一點「亮」，躲起來了，沒有被人看到，不會嚇到路人，你不用擔心", next: "xavier_4" },
+            xavier_4: { theme: "xavier", type: "dialogue", name: "沈星回", text: "肚子餓的話你可以把我的那一份也吃掉，我等一下就去找你。", choices: [{ t: "乖巧：「好吧，那我在餐廳邊吃邊等你。」", n: "xavier_wait_route" }, { t: "叛逆：「光污染？我帶墨鏡去找你！」", n: "xavier_find_route" }] },
             
             // 沈星回 A線
             xavier_wait_route: { theme: "xavier", status: "WAITING...", type: "narration", text: "妳在餐廳點了他最喜歡的肉料理。時間一分一秒過去，直到餐廳快打烊，門口的風鈴才響起。", next: "xavier_wait_2" },
             xavier_wait_2: { theme: "xavier", type: "narration", text: "沈星回推門而入，帶著一身夜晚的寒氣。他看起來並沒有受傷，只是頭髮有點亂，眼神有些渙散，顯然是能量消耗過度後的睏倦。", next: "xavier_wait_3" },
-            xavier_wait_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "抱歉，久等了。......波動比我想像的還要久一點。", next: "xavier_wait_4" },
+            xavier_wait_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "對不起，我遲到了，你生氣了嗎？......波動比我想像的還要久一點。", next: "xavier_wait_4" },
             xavier_wait_4: { theme: "xavier", type: "narration", text: "他坐在妳對面，努力想拿起刀叉，但眼皮卻越來越重。最後，他乾脆放棄抵抗，腦袋一點一點地，輕輕靠在了妳的肩膀上。", next: "xavier_wait_5" },
-            xavier_wait_5: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......借我靠五分鐘。就五分鐘......充電充滿了，我就陪妳回家......", next: "xavier_sleepy_end" },
+            xavier_wait_5: { theme: "xavier", type: "dialogue", name: "沈星回", text: "讓我...充一下電......充電充滿了，我就陪妳回家......", next: "xavier_sleepy_end" },
             xavier_sleepy_end: { theme: "xavier", type: "ending", text: "結局：【流星的充電站】", quote: "You are my only resting place.", img: "xavier_sleepy.jpg" },
 
             // 沈星回 B線
             xavier_find_route: { theme: "xavier", status: "LOCATION: OBSERVATORY", type: "narration", text: "妳不顧他的阻攔，衝到了郊區的廢棄觀星台。還沒靠近，就看到建築縫隙中透出刺眼的白光，將周圍的黑夜照得如同白晝。", next: "xavier_find_2" },
             xavier_find_2: { theme: "xavier", type: "narration", text: "沈星回坐在觀星台的階梯上，無數光點如同具備生命的螢火蟲，圍繞著他瘋狂飛舞。他微微喘息，似乎正在極力壓制體內失控的光能量。", next: "xavier_find_3" },
-            xavier_find_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......不是叫妳別來嗎？這裡太亮了，會刺傷眼睛。", next: "xavier_find_4" },
+            xavier_find_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "你...怎麼會來這裡？我說過等一下就會好的", next: "xavier_find_4" },
             xavier_find_4: { theme: "xavier", type: "narration", text: "雖然嘴上趕人，但他看到妳的那一刻，周圍狂暴的光流明顯停滯了一瞬。那是他在下意識地收斂，怕傷到妳。", choices: [{ t: "直接走過去握住他的手：「我幫你穩定下來。」", n: "xavier_hand_hold" }] },
             xavier_hand_hold: { theme: "xavier", status: "RESONATING...", type: "narration", text: "妳沒有退縮，堅定地穿過光幕，握住了他的手。接觸的瞬間，原本躁動的光元素順著妳們相連的掌心，奇蹟般地柔和下來。", next: "xavier_hand_hold_2" },
-            xavier_hand_hold_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......狡猾。妳明明知道，這招對我最有效。", next: "xavier_hand_hold_3" },
+            xavier_hand_hold_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......狡猾。你真的很了解我的弱點。", next: "xavier_hand_hold_3" },
             xavier_hand_hold_3: { theme: "xavier", type: "narration", text: "他反手扣緊妳的手指，力道大得像是抓住了他在這漫長宇宙漂流中唯一的浮木。光芒不再刺眼，反而化作溫柔的星雲，將你們兩人包裹。", next: "xavier_deep_talk" },
             xavier_deep_talk: { theme: "xavier", type: "dialogue", name: "沈星回", text: "以前......我很討厭這種失控的感覺。像個隨時會爆炸的恆星，只能躲在無人的角落。", next: "xavier_deep_talk_2" },
             xavier_deep_talk_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "但現在，好像沒那麼討厭了。因為無論我躲在哪個黑暗（或過亮）的角落......妳總能找到我。", next: "xavier_gift_reveal" },
