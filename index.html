@@ -492,7 +492,18 @@
             }
             updateMusicUI();
         }
-
+// === V13.6 新增：網頁切換時自動暫停/播放 ===
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // 網頁被隱藏（切換分頁或縮小）-> 暫停音樂
+                ui.bgm.pause();
+            } else {
+                // 網頁回到前景 -> 如果原本是開啟狀態，就繼續播放
+                if (isMusicPlaying) {
+                    ui.bgm.play().catch(e => console.log("Resume failed", e));
+                }
+            }
+        });
         function updateMusicUI() {
             if (isMusicPlaying) {
                 musicBtn.classList.remove('paused');
