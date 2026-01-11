@@ -23,8 +23,7 @@
         
         body {
             margin: 0; overflow: hidden; 
-            /* 使用 dvh 確保在手機上能填滿實際可視區域 */
-            height: 100dvh; 
+            height: 100dvh; /* V13.8: 使用 dvh 確保填滿手機實際畫面 */
             background: var(--bg-base);
             font-family: 'Noto Sans TC', sans-serif; color: #fff;
             user-select: none;
@@ -155,7 +154,7 @@
         .btn:active::before, .btn:hover::before { width: 100%; }
         .btn:active { transform: scale(0.98); }
 
-        /* === 紀念卡樣式修復 === */
+        /* === 紀念卡樣式 (增加銳利度設定) === */
         .memory-card { 
             background: #fff; color: #222; 
             padding: 15px 15px 40px 15px; 
@@ -165,11 +164,10 @@
             text-align: center; 
             display: none; 
             width: 320px; 
-            /* 提示瀏覽器優化渲染，有助於清晰度 */
-            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -webkit-optimize-contrast; /* 嘗試優化對比度 */
         }
         .memory-inner { background: #f0f0f0; width: 100%; height: 220px; margin-bottom: 15px; overflow: hidden; position: relative; }
-        /* 確保內部圖片填滿且不變形 */
+        /* 確保背景圖覆蓋方式正確 */
         .memory-art { width: 100%; height: 100%; background-size: cover; background-position: center top; background-repeat: no-repeat; transition: opacity 0.5s ease; position: relative; z-index: 1; }
         .memory-title { font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 5px; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 5px; display: inline-block; }
         .memory-quote { font-family: 'Dancing Script', cursive; font-size: 22px; color: #111; margin-bottom: 5px; }
@@ -179,32 +177,29 @@
         .btn-download { flex: 1; border: 1px solid var(--theme-color); background: rgba(255,255,255,0.1); color: var(--theme-color); font-weight: 700; font-size: 13px; padding: 12px; cursor: pointer;}
         .btn-collect { flex: 1; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.8); font-size: 13px; padding: 12px; cursor: pointer;}
 
-        /* === V13.8 手機置中終極修復 (使用 100dvh + Flexbox) === */
+        /* === V13.8 彈窗終極置中 === */
         #save-overlay {
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; 
-            /* 關鍵：使用 dvh 解決手機網址列造成的偏移 */
-            height: 100dvh; 
+            height: 100dvh; /* 確保佔滿手機視窗，無視網址列 */
             background: rgba(0,0,0,0.95); 
             z-index: 2000;
-            /* 預設隱藏，JS 會改成 flex 來顯示 */
             display: none; 
-            /* 強制內容垂直水平居中 */
+            /* Flexbox 完美置中 */
             flex-direction: column; 
             justify-content: center; 
             align-items: center;
             padding: 20px; 
-            /* 確保覆蓋在所有元素之上 */
             backdrop-filter: blur(10px);
         }
-        /* 生成的圖片樣式 */
+        /* 生成的圖片限制 */
         .generated-save-img { 
-            max-width: 90%; /* 左右留邊 */
-            max-height: 80dvh; /* 上下留邊，防止太長 */
+            max-width: 85%; /* 左右留些呼吸空間 */
+            max-height: 75dvh; /* 上下留空，避免太滿 */
             border-radius: 4px; 
             box-shadow: 0 0 30px rgba(255,255,255,0.1); 
-            object-fit: contain; /* 保持比例 */
+            object-fit: contain; /* 保持原比例，絕不變形 */
         }
         .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); text-align: center; }
         .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; z-index: 2001; padding: 10px;}
@@ -264,8 +259,7 @@
 
     <div id="save-overlay">
         <div class="close-save" onclick="closeSaveOverlay()">×</div>
-        <div id="generated-img-container">
-            </div>
+        <div id="generated-img-container"></div>
         <div class="save-hint">✧ 長按圖片以儲存 (Long Press to Save) ✧</div>
     </div>
 
@@ -351,8 +345,8 @@
                 { t: "聯絡 秦徹 (Sylus)", n: "sylus_1", theme: "sylus" }, 
                 { t: "聯絡 夏以晝 (Caleb)", n: "caleb_1", theme: "caleb" }
             ]},
+            // ... (劇本保持不變，為節省篇幅省略中間，請安心覆蓋) ...
             
-            // 黎深
             zayne_1: { theme: "zayne", status: "SIGNAL UNSTABLE", type: "narration", text: "通訊器傳來一陣刺耳的白噪音，接著是急促的風雪聲。幾秒後，一個熟悉的、帶著淡淡疲憊卻異常溫柔的低沉嗓音穿透了雜訊。", next: "zayne_2" },
             zayne_2: { theme: "zayne", type: "dialogue", name: "黎深", text: "......別亂動。我知道妳在那裡。", next: "zayne_3" },
             zayne_3: { theme: "zayne", type: "dialogue", name: "黎深", text: "剛下手術台就看到某人的生理數值在亂跳。這種天氣還在外面？如果是為了找我，那我建議妳直接導航到我的懷......咳，我的辦公室。", next: "zayne_4" },
@@ -493,12 +487,12 @@
         function tryPlayAudio() {
             if (isMusicPlaying) return;
             ui.bgm.volume = 0.5;
-            // 嘗試播放，若失敗(瀏覽器阻擋)則在下次互動時重試
             ui.bgm.play().then(() => {
                 isMusicPlaying = true;
                 updateMusicUI();
+                console.log("BGM Started via Interaction");
             }).catch(err => {
-                // 自動播放失敗是正常的，等待使用者下次點擊
+                console.log("Autoplay waiting for interaction...");
             });
         }
 
@@ -523,7 +517,6 @@
             }
         }
 
-        // V13.6: 背景自動靜音
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 ui.bgm.pause(); 
@@ -533,8 +526,7 @@
                 }
             }
         });
-        
-        // 在多個地方綁定互動以觸發音樂
+
         document.querySelector('.upload-container').addEventListener('click', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('focus', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('input', tryPlayAudio);
@@ -586,7 +578,6 @@
                 themes.default.img = customAvatarUrl;
             }
 
-            // 這裡再次嘗試播放，確保進入遊戲時有音樂
             tryPlayAudio(); 
 
             ui.startScreen.style.opacity = '0';
@@ -676,7 +667,7 @@
             }
         }
 
-        // 新增：關閉彈窗的函數
+        // 關閉彈窗
         function closeSaveOverlay() {
             document.getElementById('save-overlay').style.display = 'none';
         }
@@ -700,26 +691,28 @@
                 ui.btnGroup.classList.remove('hidden');
                 document.getElementById('btn-restart').onclick = () => show('choice_1');
                 
-                // === V13.8 緊急修復：回歸穩定的截圖方式 ===
+                // === V13.8 終極修正：瞬間擺正 + 3倍採樣 = 銳利不變形 ===
                 document.getElementById('btn-download').onclick = () => {
                     const card = document.getElementById('card-memory');
 
-                    // 1. 暫時移除旋轉和陰影，確保截圖邊緣乾淨
+                    // 1. 暫存原本的樣式
                     const originalTransform = card.style.transform;
                     const originalShadow = card.style.boxShadow;
+                    
+                    // 2. 瞬間移除旋轉和陰影 (這是變糊的主因)
                     card.style.transform = 'none';
                     card.style.boxShadow = 'none';
-                    card.style.borderRadius = '0'; // 暫時移除圓角，避免白邊
+                    card.style.borderRadius = '0'; // 避免邊緣白邊
 
-                    // 2. 使用 3 倍採樣進行截圖 (平衡畫質與效能)
+                    // 3. 使用 3 倍採樣進行截圖
                     html2canvas(card, {
                         backgroundColor: null,
                         scale: 3, 
                         useCORS: true,
-                        allowTaint: true, // 允許跨域圖片，減少錯誤
-                        logging: false // 關閉日誌
+                        allowTaint: true, 
+                        logging: false 
                     }).then(canvas => {
-                        // 3. 截圖完成，立刻復原卡片樣式
+                        // 4. 截圖完成，立刻復原卡片樣式
                         card.style.transform = originalTransform;
                         card.style.boxShadow = originalShadow;
                         card.style.borderRadius = '4px';
@@ -727,17 +720,16 @@
                         const imgData = canvas.toDataURL("image/png");
                         const generatedImg = document.createElement('img');
                         generatedImg.src = imgData;
-                        // 加入 class 以便 CSS 控制
                         generatedImg.classList.add('generated-save-img');
 
                         const overlay = document.getElementById('save-overlay');
                         const container = document.getElementById('generated-img-container');
                         container.innerHTML = '';
                         container.appendChild(generatedImg);
-                        // 4. 顯示彈窗 (CSS 的 flex 會自動置中)
+                        // 5. 顯示彈窗
                         overlay.style.display = 'flex';
                     }).catch(err => {
-                        // 失敗時也要復原樣式
+                        // 失敗時也要復原
                         card.style.transform = originalTransform;
                         card.style.boxShadow = originalShadow;
                         card.style.borderRadius = '4px';
