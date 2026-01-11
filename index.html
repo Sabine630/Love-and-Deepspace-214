@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Love and Deepspace: 2.14 Project</title>
+    
+    <meta property="og:title" content="2.14 情人節特別企劃：深空連線">
+    <meta property="og:description" content="在這個充滿磁場亂流的日子，妳最想聯繫的人是？">
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@300;400;500&family=Orbitron:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
@@ -12,6 +16,7 @@
             --theme-h: 220; --theme-s: 60%; --theme-l: 70%;
             --theme-color: hsl(var(--theme-h), var(--theme-s), var(--theme-l));
             --bg-base: #050810; 
+            --error-color: #ff4d4d;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none;}
@@ -20,162 +25,227 @@
             margin: 0; overflow: hidden; height: 100dvh;
             background: var(--bg-base);
             font-family: 'Noto Sans TC', sans-serif; color: #fff;
-            user-select: none; /* 防止手機長按選取文字 */
+            user-select: none;
         }
 
-        /* === 視覺特效層 (CRT 掃描線) === */
-        #vfx-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px; pointer-events: none; opacity: 0.6;
-        }
-
-        /* === 背景層 === */
+        /* === 背景與特效層 === */
+        #vfx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; pointer-events: none; opacity: 0.6; }
         #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: #020408; overflow: hidden; }
-        .stars {
-            position: absolute; width: 100%; height: 100%;
-            background-image: radial-gradient(2px 2px at 20px 30px, #eee, transparent), radial-gradient(2px 2px at 40px 70px, #fff, transparent), radial-gradient(2px 2px at 50px 160px, #ddd, transparent), radial-gradient(2px 2px at 90px 40px, #fff, transparent);
-            background-repeat: repeat; background-size: 200px 200px; opacity: 0.3; animation: moveStars 100s linear infinite;
-        }
+        .stars { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(2px 2px at 20px 30px, #eee, transparent), radial-gradient(2px 2px at 40px 70px, #fff, transparent), radial-gradient(2px 2px at 50px 160px, #ddd, transparent); background-repeat: repeat; background-size: 200px 200px; opacity: 0.3; animation: moveStars 100s linear infinite; }
         @keyframes moveStars { from {transform: translateY(0);} to {transform: translateY(-1000px);} }
-
-        .nebula-glow {
-            position: absolute; width: 80vw; height: 80vw; border-radius: 50%; filter: blur(60px); opacity: 0.15;
-            background: var(--theme-color); transition: background 1s ease; animation: breathe 8s ease-in-out infinite alternate;
-        }
+        .nebula-glow { position: absolute; width: 80vw; height: 80vw; border-radius: 50%; filter: blur(60px); opacity: 0.15; background: var(--theme-color); transition: background 1s ease; animation: breathe 8s ease-in-out infinite alternate; }
         .nebula-top-left { top: -20%; left: -20%; }
         .nebula-bottom-right { bottom: -20%; right: -20%; animation-delay: -4s; }
         @keyframes breathe { 0% { opacity: 0.1; scale: 1; } 100% { opacity: 0.2; scale: 1.1; } }
+        .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.3; pointer-events: none; }
 
-        .grid-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 50px 50px; opacity: 0.3; pointer-events: none;
-        }
-
-        /* === 啟動頁 (Start Screen) === */
-        #start-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
-            background: #050810; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease;
-        }
+        /* === 啟動頁樣式 === */
+        #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #050810; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease; }
         .logo-text { font-family: 'Orbitron', sans-serif; font-size: 24px; letter-spacing: 4px; color: var(--theme-color); margin-bottom: 30px; text-shadow: 0 0 10px rgba(168, 192, 255, 0.5); }
         
-        /* 輸入框樣式 */
+        /* 頭像上傳按鈕 */
+        .upload-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; cursor: pointer; transition: 0.3s; border-radius: 50%; }
+        .upload-preview {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed var(--theme-color);
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; background-size: cover; background-position: center;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .upload-preview span { font-size: 30px; color: var(--theme-color); opacity: 0.5; }
+        .upload-preview:hover { border-style: solid; box-shadow: 0 0 20px var(--theme-color); }
+        .upload-label { margin-top: 10px; font-size: 10px; font-family: 'Orbitron', sans-serif; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+
+        /* 輸入框 (關鍵修正：避免重疊) */
         .input-group { position: relative; margin-bottom: 25px; width: 200px; }
-        .input-field {
-            width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3);
-            color: #fff; font-family: 'Noto Sans TC', sans-serif; font-size: 16px; padding: 8px 0; text-align: center;
-            transition: border-color 0.3s;
-        }
+        .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: 'Noto Sans TC', sans-serif; font-size: 16px; padding: 8px 0; text-align: center; transition: border-color 0.3s; }
         .input-field:focus { border-bottom-color: var(--theme-color); }
-        .input-label {
-            position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 12px; color: rgba(255,255,255,0.5);
-            pointer-events: none; transition: 0.3s; transform: translateY(10px);
-        }
-        .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label {
-            transform: translateY(-15px); font-size: 10px; color: var(--theme-color);
+        
+        /* 浮動標籤邏輯 */
+        .input-label { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); pointer-events: none; transition: 0.3s; transform: translateY(10px); }
+        
+        /* 當輸入框有焦點，或是有內容(placeholder-shown為false)時，標籤往上浮 */
+        .input-field:focus + .input-label, 
+        .input-field:not(:placeholder-shown) + .input-label { 
+            transform: translateY(-15px); font-size: 10px; color: var(--theme-color); 
         }
 
-        .start-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid var(--theme-color);
-            color: #fff; padding: 12px 40px; font-family: 'Orbitron', sans-serif; letter-spacing: 2px;
-            cursor: pointer; transition: all 0.3s; border-radius: 2px;
+        .start-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--theme-color); color: #fff; padding: 12px 40px; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
+        
+        /* === V13.4 錯誤特效修正 === */
+        .error-shake {
+            animation: shake 0.4s ease-in-out;
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.3) !important;
         }
-        .start-btn:hover { background: var(--theme-color); color: #000; box-shadow: 0 0 15px var(--theme-color); }
+        /* 錯誤時標籤變紅 */
+        .input-label.error-text { color: var(--error-color) !important; font-weight: bold; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
 
         /* === 主介面 === */
-        #main-interface {
-            position: relative; z-index: 10; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px;
-            opacity: 0; transition: opacity 1s ease; /* 預設隱藏，等啟動後淡入 */
-        }
-        .system-header {
-            position: absolute; top: 30px; width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Orbitron', sans-serif; font-size: 10px; color: rgba(255,255,255,0.3);
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;
+        #main-interface { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; opacity: 0; transition: opacity 1s ease; }
+        .system-header { position: absolute; top: 30px; width: 90%; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif; font-size: 10px; color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+
+        /* === UI優化：玻璃擬態訊息卡片 === */
+        .msg-card { 
+            width: 100%; max-width: 380px; 
+            background: linear-gradient(135deg, rgba(20, 25, 40, 0.8), rgba(10, 10, 15, 0.9));
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-top: 2px solid var(--theme-color); 
+            border-radius: 16px; 
+            padding: 30px 25px; 
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.7),
+                inset 0 0 30px rgba(255,255,255,0.02);
+            display: flex; flex-direction: column; gap: 20px; transition: all 0.5s ease; position: relative; 
         }
 
-        /* 訊息卡片 */
-        .msg-card {
-            width: 100%; max-width: 380px;
-            background: rgba(15, 20, 30, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.08); border-top: 3px solid var(--theme-color);
-            border-radius: 16px; padding: 30px 25px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            display: flex; flex-direction: column; gap: 20px;
-            transition: all 0.5s ease; position: relative;
-        }
         .char-header { display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
+        
+        /* === UI優化：呼吸感頭像 === */
         .avatar {
-            width: 45px; height: 45px; border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); border: 1px solid var(--theme-color);
-            display: flex; justify-content: center; align-items: center;
-            font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--theme-color);
-            box-shadow: 0 0 15px hsla(var(--theme-h), var(--theme-s), 50%, 0.3);
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background-color: #000;
+            background-size: cover; 
+            background-position: top center; 
+            background-repeat: no-repeat;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 0 10px var(--theme-color), 
+                inset 0 0 10px var(--theme-color);
+            position: relative; overflow: hidden;
+            transition: all 0.5s ease;
+            animation: signal-pulse 3s infinite;
         }
+
+        @keyframes signal-pulse {
+            0% { box-shadow: 0 0 5px var(--theme-color), inset 0 0 5px var(--theme-color); border-color: rgba(255,255,255,0.3); }
+            50% { box-shadow: 0 0 20px var(--theme-color), inset 0 0 10px var(--theme-color); border-color: rgba(255,255,255,0.8); }
+            100% { box-shadow: 0 0 5px var(--theme-color), inset 0 0 5px var(--theme-color); border-color: rgba(255,255,255,0.3); }
+        }
+
+        .avatar::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.25) 50%);
+            background-size: 100% 4px; pointer-events: none;
+        }
+        
         .char-info { display: flex; flex-direction: column; }
         .char-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 1px; }
         .char-status { font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--theme-color); opacity: 0.8; }
         .msg-text { font-family: 'Noto Serif TC', serif; font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.9); min-height: 60px; }
         
         .options-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .btn {
-            padding: 16px; width: 100%; background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
-            font-size: 14px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;
-        }
-        .btn:active { transform: scale(0.98); background: rgba(255,255,255,0.1); } /* 手機按壓感 */
         
-        /* === 紀念卡 === */
-        .memory-card {
-            background: #fff; color: #222; padding: 15px 15px 40px 15px;
-            border-radius: 4px; transform: rotate(-2deg);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center; display: none;
-            /* 讓紀念卡在下載時更清晰 */
-            width: 320px; 
+        /* === UI優化：按鈕互動特效 === */
+        .btn { 
+            padding: 16px; width: 100%; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: rgba(255,255,255,0.7); 
+            font-size: 14px; text-align: center; 
+            border-radius: 8px; cursor: pointer; 
+            transition: all 0.3s; 
+            position: relative; overflow: hidden; z-index: 1;
         }
-        
-        .memory-inner {
-            background: #f0f0f0; width: 100%; height: 220px;
-            margin-bottom: 15px; overflow: hidden; position: relative;
+        .btn::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--theme-color); opacity: 0.2; z-index: -1;
+            transition: width 0.3s ease;
         }
-        .loading-spinner {
-            position: absolute; top: 50%; left: 50%; width: 30px; height: 30px;
-            border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid var(--theme-color);
-            border-radius: 50%; animation: spin 1s linear infinite; transform: translate(-50%, -50%); z-index: 0;
-        }
-        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        .btn:active::before, .btn:hover::before { width: 100%; }
+        .btn:active { transform: scale(0.98); }
 
-        .memory-art {
-            width: 100%; height: 100%; background-size: cover; background-position: center;
-            background-color: transparent; transition: opacity 0.5s ease; position: relative; z-index: 1;
-        }
-        
-        .memory-title {
-            font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700;
-            color: #555; margin-bottom: 5px; letter-spacing: 1px;
-            border-bottom: 1px solid #eee; padding-bottom: 5px; display: inline-block;
-        }
+        /* 紀念卡 */
+        .memory-card { background: #fff; color: #222; padding: 15px 15px 40px 15px; border-radius: 4px; transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: none; width: 320px; }
+        .memory-inner { background: #f0f0f0; width: 100%; height: 220px; margin-bottom: 15px; overflow: hidden; position: relative; }
+        .memory-art { width: 100%; height: 100%; background-size: cover; background-position: center; background-color: transparent; transition: opacity 0.5s ease; position: relative; z-index: 1; }
+        .memory-title { font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 5px; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 5px; display: inline-block; }
         .memory-quote { font-family: 'Dancing Script', cursive; font-size: 22px; color: #111; margin-bottom: 5px; }
         .memory-date { font-family: 'Orbitron', sans-serif; font-size: 10px; color: #999; }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; width: 100%; justify-content: center; padding-bottom: 20px;} /* 手機防擋 */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; width: 100%; justify-content: center; padding-bottom: 20px;}
         .btn-download { flex: 1; border: 1px solid var(--theme-color); background: rgba(255,255,255,0.1); color: var(--theme-color); font-weight: 700; font-size: 13px; padding: 12px; cursor: pointer;}
         .btn-collect { flex: 1; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.8); font-size: 13px; padding: 12px; cursor: pointer;}
+
+        /* 手機儲存彈窗 */
+        #save-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #save-overlay img { max-width: 85%; border-radius: 4px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; }
 
         .hidden { display: none !important; }
         .cursor { display: inline-block; width: 2px; height: 1em; background: var(--theme-color); animation: blink 1s infinite; vertical-align: sub;}
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* === 音樂控制按鈕樣式 === */
+        .music-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 2000;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--theme-color);
+            padding: 8px 15px; border-radius: 20px;
+            cursor: pointer; transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .music-btn:hover { background: rgba(var(--theme-color), 0.2); box-shadow: 0 0 15px var(--theme-color); }
+
+        /* 跳動的音波圖示 */
+        .music-icon { display: flex; gap: 3px; align-items: flex-end; height: 15px; }
+        .music-icon span {
+            width: 2px; background-color: var(--theme-color);
+            animation: wave 1s infinite ease-in-out;
+        }
+        .music-icon span:nth-child(1) { height: 60%; animation-delay: 0s; }
+        .music-icon span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+        .music-icon span:nth-child(3) { height: 50%; animation-delay: 0.4s; }
+        .music-icon span:nth-child(4) { height: 80%; animation-delay: 0.1s; }
+
+        /* 暫停時的樣式 */
+        .music-btn.paused .music-icon span { animation: none; height: 20%; opacity: 0.5; }
+        .music-btn.paused .music-text { opacity: 0.5; }
+        .music-btn.paused { border-color: #555; }
+
+        .music-text { font-family: 'Orbitron', sans-serif; font-size: 10px; color: #fff; letter-spacing: 1px; }
+
+        @keyframes wave {
+            0%, 100% { height: 20%; }
+            50% { height: 100%; }
+        }
     </style>
 </head>
 <body>
     <div id="vfx-layer"></div>
-
-    <audio id="bgm" loop>
+    <audio id="bgm" loop preload="auto">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
+    
+    <div id="music-control" class="music-btn paused" onclick="toggleMusic()">
+        <div class="music-icon">
+            <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="music-text">BGM: OFF</div>
+    </div>
+
+    <div id="save-overlay">
+        <div class="close-save" onclick="document.getElementById('save-overlay').style.display='none'">×</div>
+        <div id="generated-img-container"></div>
+        <div class="save-hint">✧ 長按圖片以儲存 (Long Press to Save) ✧</div>
+    </div>
 
     <div id="bg-layer">
         <div class="stars"></div>
@@ -187,9 +257,17 @@
     <div id="start-screen">
         <div class="logo-text">DEEPSPACE LINK</div>
         
+        <div class="upload-container" onclick="document.getElementById('file-input').click()">
+            <div id="upload-preview" class="upload-preview">
+                <span>+</span>
+            </div>
+            <div class="upload-label">UPLOAD AVATAR</div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleAvatarUpload(this)">
+
         <div class="input-group">
             <input type="text" id="hunter-name" class="input-field" placeholder=" " maxlength="10">
-            <label class="input-label">ENTER HUNTER ID</label>
+            <label class="input-label" id="name-label">ENTER HUNTER ID</label>
         </div>
 
         <div class="start-btn" onclick="startGame()">CONNECT</div>
@@ -197,13 +275,13 @@
 
     <div id="main-interface">
         <div class="system-header">
-            <span>DEEPSPACE_LINK // V11.0</span>
+            <span>DEEPSPACE_LINK // V13.4</span>
             <span>REC_2048.02.14</span>
         </div>
 
         <div id="card-normal" class="msg-card">
             <div id="char-header" class="char-header">
-                <div class="avatar" id="avatar-text">H</div>
+                <div class="avatar" id="avatar-img"></div>
                 <div class="char-info">
                     <span class="char-name" id="display-name">HUNTER</span>
                     <span class="char-status" id="display-status">CONNECTED</span>
@@ -215,7 +293,6 @@
 
         <div id="card-memory" class="memory-card">
             <div class="memory-inner">
-                <div class="loading-spinner"></div>
                 <div class="memory-art" id="memo-art"></div>
             </div>
             <div class="memory-title" id="memo-title">獲得成就</div>
@@ -224,26 +301,25 @@
         </div>
         
         <div id="action-buttons" class="btn-group hidden">
-            <button id="btn-download" class="btn btn-download">收起回憶</button>
+            <button id="btn-download" class="btn btn-download">收起這份回憶</button>
             <button id="btn-restart" class="btn btn-collect">聯絡其他人</button>
         </div>
     </div>
 
     <script>
         const themes = {
-            default: { h: 220, s: '20%', t: 'H' },
-            zayne:   { h: 190, s: '80%', t: 'Z' },
-            rafayel: { h: 340, s: '80%', t: 'R' },
-            xavier:  { h: 260, s: '70%', t: 'X' },
-            sylus:   { h: 0,   s: '80%', t: 'S' },
-            caleb:   { h: 35,  s: '90%', t: 'C' } 
+            default: { h: 220, s: '20%', img: 'avatar_hunter.jpg' }, 
+            zayne:   { h: 190, s: '80%', img: 'avatar_zayne.jpg' },
+            rafayel: { h: 340, s: '80%', img: 'avatar_rafayel.jpg' },
+            xavier:  { h: 260, s: '70%', img: 'avatar_xavier.jpg' },
+            sylus:   { h: 0,   s: '80%', img: 'avatar_sylus.jpg' },
+            caleb:   { h: 35,  s: '90%', img: 'avatar_caleb.jpg' } 
         };
 
-        // 玩家名字變數
-        let playerName = "獵人";
+        let playerName = ""; // 預設為空，強制輸入
+        let customAvatarUrl = 'avatar_hunter.jpg'; // 預設
 
         const story = {
-            // === 共通開場 ===
             start: { theme: "default", type: "narration", text: "【2048.02.14 // 臨空市上空】\n原本應該是充滿巧克力的日子，但對於深空獵人來說，今天卻是個充滿「磁場亂流」的日子。", next: "start_2" },
             start_2: { theme: "default", type: "narration", text: "系統提示：通訊終端連線不穩... 滋... 滋...", next: "choice_1" },
             choice_1: { theme: "default", type: "dialogue", name: "我", text: "......這種時候，我最想聯繫的人是？", choices: [
@@ -253,25 +329,21 @@
                 { t: "聯絡 秦徹 (Sylus)", n: "sylus_1", theme: "sylus" }, 
                 { t: "聯絡 夏以晝 (Caleb)", n: "caleb_1", theme: "caleb" }
             ]},
-
-            // === 黎深 (Zayne) V9.3 ===
+            
+            // 劇本內容 (維持不變)
             zayne_1: { theme: "zayne", status: "SIGNAL UNSTABLE", type: "narration", text: "通訊器傳來一陣刺耳的白噪音，接著是急促的風雪聲。幾秒後，一個熟悉的、帶著淡淡疲憊卻異常溫柔的低沉嗓音穿透了雜訊。", next: "zayne_2" },
             zayne_2: { theme: "zayne", type: "dialogue", name: "黎深", text: "......別亂動。我知道妳在那裡。", next: "zayne_3" },
             zayne_3: { theme: "zayne", type: "dialogue", name: "黎深", text: "剛下手術台就看到某人的生理數值在亂跳。這種天氣還在外面？如果是為了找我，那我建議妳直接導航到我的懷......咳，我的辦公室。", next: "zayne_4" },
             zayne_4: { theme: "zayne", type: "dialogue", name: "黎深", text: "說話。妳現在感覺怎麼樣？", choices: [{ t: "故意喘氣：「黎醫生，我好像有點缺氧......需要人工呼吸！」", n: "zayne_funny_route" }, { t: "撒嬌：「外面好冷，手都凍僵了......想見你。」", n: "zayne_sweet_route" }] },
-            
-            // 黎深 A線
             zayne_funny_route: { theme: "zayne", status: "HEART RATE: 120", type: "dialogue", name: "黎深", text: "......缺氧？還有力氣胡說八道，看來肺活量很足。", next: "zayne_funny_2" },
             zayne_funny_2: { theme: "zayne", type: "dialogue", name: "黎深", text: "站在原地別動。既然是急診，我有義務親自去『搬運』病患。", next: "zayne_funny_scene" },
             zayne_funny_scene: { theme: "zayne", status: "DISTANCE: 0m", type: "narration", text: "沒過多久，他就出現在風雪中。妳還沒來得及撲過去，就被他用圍巾裹成了粽子，只露出一雙眼睛。", next: "zayne_funny_3" },
             zayne_funny_3: { theme: "zayne", type: "dialogue", name: "黎深", text: "看看妳，眉毛上全是雪......現在不像獵人，像個剛從雪堆爬出來的雪人。", next: "zayne_funny_4" },
-            zayne_funny_4: { theme: "zayne", type: "narration", text: "他嘴上嫌棄，手指卻溫柔地替妳拂去睫毛上的冰晶，指腹溫熱，帶著令人安心的茉莉香。", next: "zayne_funny_5" },
+            zayne_funny_4: { theme: "zayne", type: "narration", text: "他嘴上唸叨著，手指卻溫柔地替妳拂去睫毛上的冰晶，指腹溫熱，帶著令人安心的茉莉香。", next: "zayne_funny_5" },
             zayne_funny_5: { theme: "zayne", type: "dialogue", name: "黎深", text: "走吧，雪人小姐。帶妳回去解凍。至於妳要求的『人工呼吸』......", next: "zayne_funny_6" },
             zayne_funny_6: { theme: "zayne", type: "dialogue", name: "黎深", text: "等進了房間，我們可以慢慢討論治療方案。", next: "zayne_funny_end" },
             zayne_funny_end: { theme: "zayne", type: "ending", text: "結局：【專屬的特別治療】", quote: "The only cure for you is me.", img: "zayne_funny.jpg" },
-
-            // 黎深 B線
-            zayne_sweet_route: { theme: "zayne", status: "TEMPERATURE: WARMING", type: "dialogue", name: "黎深", text: "......笨蛋。辦公室權限開給妳了，快進來，別讓我在顯示屏上看到妳體溫繼續下降。", next: "zayne_office_scene" },
+            zayne_sweet_route: { theme: "zayne", status: "TEMPERATURE: WARMING", type: "dialogue", name: "黎深", text: "......傻瓜。辦公室權限早就開給妳了，快進來，別讓我在螢幕上看到妳體溫繼續下降。", next: "zayne_office_scene" },
             zayne_office_scene: { theme: "zayne", status: "LOCATION: OFFICE", type: "narration", text: "辦公室裡暖氣充足。黎深脫了白袍，穿著黑色高領毛衣靠在桌邊。妳一進門，他就自然地拉過妳冰涼的手，包在掌心裡搓揉。", next: "zayne_sweet_2" },
             zayne_sweet_2: { theme: "zayne", type: "dialogue", name: "黎深", text: "這麼涼......以後禁止在這種天氣出外勤。這是醫囑。", next: "zayne_sweet_3" },
             zayne_sweet_3: { theme: "zayne", type: "narration", text: "他忽然低下頭，將妳的手背貼在他溫熱的臉頰上，眼鏡後的眸子裡倒映著妳的影子，深邃得像要將妳吸進去。", next: "zayne_sweet_4" },
@@ -282,19 +354,14 @@
             zayne_gift_final: { theme: "zayne", type: "dialogue", name: "黎深", text: "這是特供的『鎮定劑』。吃完這個......如果你還心跳過速，我就只好用我的方式幫妳『人工降溫』了。", next: "zayne_end" },
             zayne_end: { theme: "zayne", type: "ending", text: "獲得成就：【零度下的專屬心跳】", quote: "My heart beats only for you, always.", img: "zayne_sweet.jpg" },
 
-            // === 祁煜 (Rafayel) V9.4 ===
             rafayel_1: { theme: "rafayel", status: "24 MESSAGES", type: "narration", text: "通訊終端瘋狂震動，顯示有 24 則未讀語音，而且還在持續增加中。點開第一則，背景音是焦躁的走動聲和畫筆被扔在地上的聲音。", next: "rafayel_2" },
             rafayel_2: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "......喂！保鏢小姐！妳知不知道現在幾點了？！我的畫......（雜訊）......顏料都要乾了！靈感也快枯竭了！", next: "rafayel_3" },
             rafayel_3: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "我再給妳最後三分鐘......如果不出現，我就......滋......把這間畫室燒了！當作信號彈給妳看！聽到了嗎？！", choices: [{ t: "嚇壞了：「他要燒畫室？太危險了，快報警！」", n: "rafayel_funny_route" }, { t: "淡定：「這是在撒嬌。直接去畫室找他。」", n: "rafayel_sweet_route" }] },
-            
-            // 祁煜 A線
             rafayel_funny_route: { theme: "rafayel", status: "EMERGENCY!", type: "narration", text: "妳嚇得立刻聯繫了臨空市消防局。五分鐘後，妳帶著全副武裝的消防員踹開了白沙灣畫室的大門。", next: "rafayel_funny_2" },
             rafayel_funny_2: { theme: "rafayel", type: "narration", text: "然而，屋內沒有火光，只有穿著沾滿顏料的圍裙、手裡優雅地拿著調色盤，一臉錯愕看著門口大陣仗的祁煜。", next: "rafayel_funny_3" },
             rafayel_funny_3: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "......哇哦。雖然我說過想要一個『火熱』的夜晚，但我指的可不是這種滅火器派對。", next: "rafayel_funny_4" },
             rafayel_funny_4: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "妳是想用水槍把我的畫（還有我）一起沖進下水道嗎？保鏢小姐，妳的幽默感真是越來越......獨特了。", next: "rafayel_funny_end" },
             rafayel_funny_end: { theme: "rafayel", type: "ending", text: "結局：【滅火器破壞者】", quote: "Not this kind of fire!", img: "rafayel_funny.jpg" },
-
-            // 祁煜 B線
             rafayel_sweet_route: { theme: "rafayel", status: "LOCATION: STUDIO", type: "narration", text: "妳熟門熟路地來到白沙灣。畫室沒有開燈，一片漆黑，空氣中瀰漫著潮濕的海風味道和松節油的香氣。", next: "rafayel_studio_2" },
             rafayel_studio_2: { theme: "rafayel", type: "narration", text: "祁煜坐在巨大的落地窗前，背對著妳。藉著月光，能看見他正在煩躁地轉著畫筆，地板上散落著無數廢棄的畫紙。", next: "rafayel_studio_3" },
             rafayel_studio_3: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "遲到一分鐘，扣一張畫。遲到兩分鐘，扣兩張......妳知道剛才有多少絕世名作因為妳的缺席而胎死腹中嗎？", next: "rafayel_studio_4" },
@@ -311,21 +378,16 @@
             rafayel_final_words: { theme: "rafayel", type: "dialogue", name: "祁煜", text: "每一張都是我的寶貝......就像妳一樣。情人節快樂，我的謬思。", next: "rafayel_end" },
             rafayel_end: { theme: "rafayel", type: "ending", text: "獲得成就：【深海裡的烈火】", quote: "You are my Muse, my fire, my everything.", img: "rafayel_sweet.jpg" },
 
-            // === 沈星回 (Xavier) V9.5 ===
             xavier_1: { theme: "xavier", status: "SIGNAL WEAK", type: "narration", text: "通訊頻道的訊號燈忽明忽滅，耳邊傳來的不像是電流聲，更像是一種高頻的能量嗡鳴。接著，沈星回的聲音斷斷續續地傳來。", next: "xavier_2" },
             xavier_2: { theme: "xavier", type: "dialogue", name: "沈星回", text: "......對不起。今天的晚餐......我可能要遲到了。", next: "xavier_3" },
             xavier_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "我現在...有一點「亮」，躲起來了，沒有被人看到，不會嚇到路人，你不用擔心", next: "xavier_4" },
             xavier_4: { theme: "xavier", type: "dialogue", name: "沈星回", text: "肚子餓的話你可以把我的那一份也吃掉，我等一下就去找你。", choices: [{ t: "乖巧：「好吧，那我在餐廳邊吃邊等你。」", n: "xavier_wait_route" }, { t: "叛逆：「光污染？我帶墨鏡去找你！」", n: "xavier_find_route" }] },
-            
-            // 沈星回 A線
             xavier_wait_route: { theme: "xavier", status: "WAITING...", type: "narration", text: "妳在餐廳點了他最喜歡的肉料理。時間一分一秒過去，直到餐廳快打烊，門口的風鈴才響起。", next: "xavier_wait_2" },
             xavier_wait_2: { theme: "xavier", type: "narration", text: "沈星回推門而入，帶著一身夜晚的寒氣。他看起來並沒有受傷，只是頭髮有點亂，眼神有些渙散，顯然是能量消耗過度後的睏倦。", next: "xavier_wait_3" },
             xavier_wait_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "對不起，我遲到了，你生氣了嗎？......波動比我想像的還要久一點。", next: "xavier_wait_4" },
             xavier_wait_4: { theme: "xavier", type: "narration", text: "他坐在妳對面，努力想拿起刀叉，但眼皮卻越來越重。最後，他乾脆放棄抵抗，腦袋一點一點地，輕輕靠在了妳的肩膀上。", next: "xavier_wait_5" },
             xavier_wait_5: { theme: "xavier", type: "dialogue", name: "沈星回", text: "讓我...充一下電......充電充滿了，我就陪妳回家......", next: "xavier_sleepy_end" },
             xavier_sleepy_end: { theme: "xavier", type: "ending", text: "結局：【流星的充電站】", quote: "You are my only resting place.", img: "xavier_sleepy.jpg" },
-
-            // 沈星回 B線
             xavier_find_route: { theme: "xavier", status: "LOCATION: OBSERVATORY", type: "narration", text: "妳不顧他的阻攔，衝到了郊區的廢棄觀星台。還沒靠近，就看到建築縫隙中透出刺眼的白光，將周圍的黑夜照得如同白晝。", next: "xavier_find_2" },
             xavier_find_2: { theme: "xavier", type: "narration", text: "沈星回坐在觀星台的階梯上，無數光點如同具備生命的螢火蟲，圍繞著他瘋狂飛舞。他微微喘息，似乎正在極力壓制體內失控的光能量。", next: "xavier_find_3" },
             xavier_find_3: { theme: "xavier", type: "dialogue", name: "沈星回", text: "你...怎麼會來這裡？我說過等一下就會好的", next: "xavier_find_4" },
@@ -339,7 +401,6 @@
             xavier_gift_final: { theme: "xavier", type: "dialogue", name: "沈星回", text: "這是我的『光源座標』。只要它還亮著，不管妳在哪裡，也不管隔著多少光年......我都能瞬間回到妳身邊。", next: "xavier_true_end" },
             xavier_true_end: { theme: "xavier", type: "ending", text: "獲得成就：【跨越光年的座標】", quote: "No matter how far, I will return to you.", img: "xavier_light.jpg" },
 
-            // === 秦徹 (Sylus) V9.6 ===
             sylus_1: { theme: "sylus", status: "WARNING: HIGH ENERGY", type: "narration", text: "通訊頻道的警報聲尖銳得快要刺破耳膜，磁場亂流讓妳的頭劇痛無比。就在妳快要忍受不住時——", next: "sylus_2" },
             sylus_2: { theme: "sylus", type: "narration", text: "『啪。』一聲清脆的、漫不經心的響指聲傳來。下一秒，所有的雜訊、警報、電流聲瞬間消失，世界陷入死一般的寂靜。", next: "sylus_3" },
             sylus_3: { theme: "sylus", type: "dialogue", name: "秦徹", text: "......吵死了。現在清靜多了。頭還痛嗎？小狸花。", next: "sylus_4" },
@@ -348,16 +409,12 @@
             sylus_tower_invite: { theme: "sylus", status: "FOLLOW MEPHISTO", type: "dialogue", name: "秦徹", text: "我不喜歡和我說話的時候，有雜音插嘴。梅菲斯特已經過去了，跟著牠，來個安靜的地方。", next: "sylus_scene_tower" },
             sylus_scene_tower: { theme: "sylus", status: "LOCATION: N109 ZONE", type: "narration", text: "跟隨機械烏鴉來到高塔之上。秦徹坐在懸空的露台邊緣，手裡晃著半杯紅酒，身後是混亂卻絢爛的霓虹夜景。", next: "sylus_scene_tower_2" },
             sylus_scene_tower_2: { theme: "sylus", type: "dialogue", name: "秦徹", text: "今天是情人節。我想妳應該不希望在充滿警報聲的街道上度過。過來。", choices: [{ t: "走過去：「你看起來很有興致喝酒？」", n: "sylus_drink" }, { t: "直接靠在他身邊：「借我充個電，累死了。」", n: "sylus_resonate" }] },
-            
-            // 秦徹 A線
             sylus_drink: { theme: "sylus", status: "OFFER", type: "narration", text: "他將酒杯遞到妳唇邊，妳抿了一口，醇厚的酒香中帶著一絲危險的氣息。他看著妳，眼底閃爍著紅寶石般的光芒。", next: "sylus_drink_2" },
             sylus_drink_2: { theme: "sylus", type: "dialogue", name: "秦徹", text: "這杯酒不錯，但......我有更好的東西給妳。", next: "sylus_gift_reveal" },
             sylus_gift_reveal: { theme: "sylus", type: "narration", text: "他拿出一個精緻的黑色盒子，裡面是一枚流動著暗紅微光的耳骨夾，造型如同纏繞的荊棘。", next: "sylus_gift_explain" },
             sylus_gift_explain: { theme: "sylus", type: "dialogue", name: "秦徹", text: "抗干擾通訊器。加載了我的共鳴頻率。戴上它，以後無論外面多吵，只要按一下......", next: "sylus_gift_end_words" },
             sylus_gift_end_words: { theme: "sylus", type: "dialogue", name: "秦徹", text: "全世界的雜音都會消失，妳只會聽見我。這是妳的特權。", next: "sylus_gift_end" },
             sylus_gift_end: { theme: "sylus", type: "ending", text: "獲得成就：【靜默頻率的特權】", quote: "In my world, you make the rules.", img: "sylus_gift.jpg" },
-
-            // 秦徹 B線
             sylus_resonate: { theme: "sylus", status: "RESONATING...", type: "narration", text: "妳毫不客氣地靠在他胸口。他愣了一瞬，隨即低笑一聲，單手摟住妳，紅色的能量場像護盾一樣張開，將風雪隔絕在外。", next: "sylus_resonate_2" },
             sylus_resonate_2: { theme: "sylus", type: "dialogue", name: "秦徹", text: "......真會使喚人。但我准了。", next: "sylus_resonate_3" },
             sylus_resonate_3: { theme: "sylus", type: "narration", text: "妳能感受到他強有力的心跳，隨著能量的波動，你們的心跳頻率逐漸重合。那種靈魂深處的顫慄感，比酒精更讓人微醺。", next: "sylus_resonate_4" },
@@ -365,29 +422,24 @@
             sylus_resonate_5: { theme: "sylus", type: "dialogue", name: "秦徹", text: "抓緊了。既然這是妳主動的，今晚......我就不打算放妳走了。", next: "sylus_resonate_end" },
             sylus_resonate_end: { theme: "sylus", type: "ending", text: "獲得成就：【危險的共犯】", quote: "Resonate with me, until the end.", img: "sylus_hug.jpg" },
 
-            // === 夏以晝 (Caleb) V9.7 ===
             caleb_1: { theme: "caleb", status: "LOCATION: HOME", type: "narration", text: "推開家門的瞬間，刺骨的寒風被徹底隔絕在外。屋內瀰漫著玉米燉排骨湯的暖香，是記憶中讓人安心的味道。", next: "caleb_2" },
             caleb_2: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "回來了？去洗手，馬上就能吃飯了。", next: "caleb_3" },
             caleb_3: { theme: "caleb", type: "narration", text: "夏以晝穿著圍裙從廚房走出來，手裡端著最後一道菜。雖然外面因為磁場亂流亂成一團，但他這裡，永遠風平浪靜。", next: "caleb_4" },
             caleb_4: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "一直盯著我看做什麼？怎麼，才半天不見，就不認識哥哥了？", choices: [{ t: "調皮：「我是看這湯燉得不錯，想偷吃一口。」", n: "caleb_playful_route" }, { t: "心疼：「你的手......剛才是不是抖了一下？」", n: "caleb_deep_route" }] },
-            
-            // 夏以晝 A線
             caleb_playful_route: { theme: "caleb", status: "TARGET LOCKED", type: "dialogue", name: "夏以晝", text: "小饞貓。手都沒洗就想偷吃？看來是平時太慣著妳了。", next: "caleb_playful_2" },
             caleb_playful_2: { theme: "caleb", type: "narration", text: "妳趁他不注意，抓起果盤裡的一顆櫻桃往空中一拋，張嘴想接住。但他只是動了動手指，櫻桃就懸停在了半空中。", next: "caleb_playful_3" },
             caleb_playful_3: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "在我的『引力』範圍內，任何東西的落點......都由我決定。", next: "caleb_playful_4" },
             caleb_playful_4: { theme: "caleb", type: "narration", text: "他輕笑一聲，操縱引力讓櫻桃緩緩飛到妳嘴邊，指尖輕輕擦過妳的唇瓣。", next: "caleb_playful_5" },
             caleb_playful_5: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "吃了這顆，就乖乖坐好。我有東西要給妳。不是湯，是比湯更甜的東西。", next: "caleb_playful_end" },
             caleb_playful_end: { theme: "caleb", type: "ending", text: "結局：【引力捕獲】", quote: "No matter where you fall, I'll catch you.", img: "caleb_home.jpg" },
-
-            // 夏以晝 B線
-            caleb_deep_route: { theme: "caleb", status: "SIGNAL INTERFERENCE", type: "narration", text: "妳注意到他在倒水時，機械手臂的關節處似乎因為外界的磁場干擾而發出細微的電流聲，動作有一瞬間的僵硬。", next: "caleb_deep_2" },
+            caleb_deep_route: { theme: "caleb", status: "SIGNAL INTERFERENCE", type: "narration", text: "妳注意到他在倒水時，右手臂的關節處似乎因為外界的磁場干擾而發出細微的電流聲，動作有一瞬間的僵硬。", next: "caleb_deep_2" },
             caleb_deep_2: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "......沒事。只是神經傳輸有點延遲。這點小干擾，還影響不到我為妳剝蝦的技術。", next: "caleb_deep_3" },
-            caleb_deep_3: { theme: "caleb", type: "narration", text: "妳沒有說話，只是走過去，雙手握住了他那隻冰冷的機械手。妳掌心的溫度貼合著金屬，試圖傳遞一絲暖意。", next: "caleb_deep_4" },
-            caleb_deep_4: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "......傻瓜。金屬是沒有知覺的，妳這樣只會凍到自己。", next: "caleb_deep_5" },
+            caleb_deep_3: { theme: "caleb", type: "narration", text: "妳沒有說話，只是走過去，雙手握住了他那隻冰冷的右手。妳掌心的溫度貼合著肌膚，試圖傳遞一絲暖意。", next: "caleb_deep_4" },
+            caleb_deep_4: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "......傻瓜。沒有知覺的......妳這樣只會凍到自己。", next: "caleb_deep_5" },
             caleb_deep_5: { theme: "caleb", type: "narration", text: "他嘴上這麼說，卻反手扣住了妳的手，十指緊扣。那股混亂的電流聲似乎真的在妳的安撫下平靜了下來。", next: "caleb_gift_reveal" },
             caleb_gift_reveal: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "妳一碰我，雜音就消失了。看來......妳才是我的『穩定劑』。", next: "caleb_gift_2" },
             caleb_gift_2: { theme: "caleb", type: "narration", text: "他從口袋裡拿出一條項鍊，墜子是一顆用夕曜石雕刻的小蘋果，在燈光下流轉著暖金色的光芒。", next: "caleb_gift_3" },
-            caleb_gift_3: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "它永遠不會冷卻，也不會過期。就像我對妳的引力一樣——穿越光年，恆久不變。", next: "caleb_true_end" },
+            caleb_gift_3: { theme: "caleb", type: "dialogue", name: "夏以晝", text: "但它永遠不會冷卻，也不會過期。就像我對妳的引力一樣——穿越光年，恆久不變。", next: "caleb_true_end" },
             caleb_true_end: { theme: "caleb", type: "ending", text: "獲得成就：【恆溫的守護者】", quote: "Gravity always brings me back to you.", img: "caleb_hug.jpg" }
         };
 
@@ -399,7 +451,7 @@
             cardNormal: document.getElementById('card-normal'),
             cardMemory: document.getElementById('card-memory'),
             header: document.getElementById('char-header'),
-            avatar: document.getElementById('avatar-text'),
+            avatar: document.getElementById('avatar-img'),
             name: document.getElementById('display-name'),
             status: document.getElementById('display-status'),
             text: document.getElementById('text-area'),
@@ -412,17 +464,106 @@
         };
         let typeInterval;
 
-        // === 1. 遊戲啟動 ===
-        function startGame() {
-            // 獲取名字，預設為獵人
-            const inputVal = ui.hunterNameInput.value.trim();
-            if (inputVal) playerName = inputVal;
+        // === 音樂控制邏輯 (V13.3) ===
+        let isMusicPlaying = false;
+        const musicBtn = document.getElementById('music-control');
+        const musicText = document.querySelector('.music-text');
 
-            // 播放 BGM (如果有的話)
+        function tryPlayAudio() {
+            if (isMusicPlaying) return;
             ui.bgm.volume = 0.5;
-            ui.bgm.play().catch(e => console.log("Audio play failed (no file or policy):", e));
+            ui.bgm.play().then(() => {
+                isMusicPlaying = true;
+                updateMusicUI();
+                console.log("BGM Started via Interaction");
+            }).catch(err => {
+                console.log("Autoplay waiting for interaction...");
+            });
+        }
 
-            // 介面切換
+        function toggleMusic() {
+            if (ui.bgm.paused) {
+                ui.bgm.play();
+                isMusicPlaying = true;
+            } else {
+                ui.bgm.pause();
+                isMusicPlaying = false;
+            }
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            if (isMusicPlaying) {
+                musicBtn.classList.remove('paused');
+                musicText.innerText = "BGM: ON";
+            } else {
+                musicBtn.classList.add('paused');
+                musicText.innerText = "BGM: OFF";
+            }
+        }
+
+        document.querySelector('.upload-container').addEventListener('click', tryPlayAudio);
+        document.getElementById('hunter-name').addEventListener('focus', tryPlayAudio);
+        document.getElementById('hunter-name').addEventListener('input', tryPlayAudio);
+
+
+        // 處理頭像上傳
+        function handleAvatarUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('upload-preview');
+                    preview.style.backgroundImage = `url('${e.target.result}')`;
+                    preview.innerHTML = ''; 
+                    customAvatarUrl = e.target.result;
+                    themes.default.img = customAvatarUrl;
+                    
+                    // 移除錯誤提示
+                    document.querySelector('.upload-container').classList.remove('error-shake');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // === V13.4 修改：修正錯誤提示邏輯 ===
+        function startGame() {
+            const inputVal = ui.hunterNameInput.value.trim();
+            const label = document.getElementById('name-label');
+            
+            // 檢查 1：名字是否為空
+            if (!inputVal) {
+                ui.hunterNameInput.classList.add('error-shake');
+                
+                // 改動 Label 文字而不是 Placeholder，避免重疊
+                const originalLabel = label.innerText;
+                label.innerText = "⚠️ ID REQUIRED";
+                label.classList.add('error-text');
+                
+                // 震動後還原
+                setTimeout(() => {
+                    ui.hunterNameInput.classList.remove('error-shake');
+                    label.classList.remove('error-text');
+                    label.innerText = "ENTER HUNTER ID";
+                }, 1000);
+                return; 
+            }
+
+            // 檢查 2：是否上傳了頭像
+            if (customAvatarUrl === 'avatar_hunter.jpg') {
+                const uploadContainer = document.querySelector('.upload-container');
+                uploadContainer.classList.add('error-shake');
+                setTimeout(() => uploadContainer.classList.remove('error-shake'), 500);
+                return;
+            }
+
+            // 通過驗證，開始遊戲
+            playerName = inputVal;
+            if (customAvatarUrl !== 'avatar_hunter.jpg') {
+                themes.default.img = customAvatarUrl;
+            }
+
+            tryPlayAudio(); 
+
             ui.startScreen.style.opacity = '0';
             setTimeout(() => {
                 ui.startScreen.style.display = 'none';
@@ -431,12 +572,11 @@
             }, 800);
         }
 
-        // === 2. 核心邏輯 ===
         function applyTheme(key) {
             const t = themes[key] || themes.default;
             document.documentElement.style.setProperty('--theme-h', t.h);
             document.documentElement.style.setProperty('--theme-s', t.s);
-            ui.avatar.innerText = t.t;
+            ui.avatar.style.backgroundImage = `url('${t.img}')`;
         }
 
         function show(id) {
@@ -464,7 +604,6 @@
                 ui.header.classList.add('hidden');
             } else {
                 ui.header.classList.remove('hidden');
-                // 如果說話者是「我」或「獵人」，替換成玩家輸入的名字
                 if (data.name === '我' || data.name === '獵人') {
                     ui.name.innerText = playerName;
                 } else {
@@ -529,7 +668,7 @@
 
             setTimeout(() => {
                 ui.btnGroup.classList.remove('hidden');
-                document.getElementById('btn-restart').onclick = () => show('start');
+                document.getElementById('btn-restart').onclick = () => show('choice_1');
                 
                 document.getElementById('btn-download').onclick = () => {
                     const card = document.getElementById('card-memory');
@@ -538,12 +677,16 @@
                         scale: 2, 
                         useCORS: true 
                     }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.download = `Deepspace_${Date.now()}.png`;
-                        link.href = canvas.toDataURL();
-                        link.click();
+                        const imgData = canvas.toDataURL("image/png");
+                        const generatedImg = document.createElement('img');
+                        generatedImg.src = imgData;
+                        const overlay = document.getElementById('save-overlay');
+                        const container = document.getElementById('generated-img-container');
+                        container.innerHTML = '';
+                        container.appendChild(generatedImg);
+                        overlay.style.display = 'flex';
                     }).catch(err => {
-                        alert("圖片下載失敗。請確認是否使用本機伺服器瀏覽 (localhost)。");
+                        alert("圖片生成失敗。請確認是否使用本地伺服器瀏覽。");
                         console.error(err);
                     });
                 };
