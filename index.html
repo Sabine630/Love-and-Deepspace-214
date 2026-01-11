@@ -58,29 +58,24 @@
         .upload-preview:hover { border-style: solid; box-shadow: 0 0 20px var(--theme-color); }
         .upload-label { margin-top: 10px; font-size: 10px; font-family: 'Orbitron', sans-serif; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
 
-        /* 輸入框 (關鍵修正：避免重疊) */
+        /* 輸入框 */
         .input-group { position: relative; margin-bottom: 25px; width: 200px; }
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: 'Noto Sans TC', sans-serif; font-size: 16px; padding: 8px 0; text-align: center; transition: border-color 0.3s; }
         .input-field:focus { border-bottom-color: var(--theme-color); }
         
-        /* 浮動標籤邏輯 */
         .input-label { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); pointer-events: none; transition: 0.3s; transform: translateY(10px); }
-        
-        /* 當輸入框有焦點，或是有內容(placeholder-shown為false)時，標籤往上浮 */
-        .input-field:focus + .input-label, 
-        .input-field:not(:placeholder-shown) + .input-label { 
+        .input-field:focus + .input-label, .input-field:not(:placeholder-shown) + .input-label { 
             transform: translateY(-15px); font-size: 10px; color: var(--theme-color); 
         }
 
         .start-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--theme-color); color: #fff; padding: 12px 40px; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
         
-        /* === V13.4 錯誤特效修正 === */
+        /* 錯誤特效 */
         .error-shake {
             animation: shake 0.4s ease-in-out;
             border-color: var(--error-color) !important;
             box-shadow: 0 0 15px rgba(255, 77, 77, 0.3) !important;
         }
-        /* 錯誤時標籤變紅 */
         .input-label.error-text { color: var(--error-color) !important; font-weight: bold; }
         
         @keyframes shake {
@@ -93,7 +88,6 @@
         #main-interface { position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; opacity: 0; transition: opacity 1s ease; }
         .system-header { position: absolute; top: 30px; width: 90%; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif; font-size: 10px; color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
 
-        /* === UI優化：玻璃擬態訊息卡片 === */
         .msg-card { 
             width: 100%; max-width: 380px; 
             background: linear-gradient(135deg, rgba(20, 25, 40, 0.8), rgba(10, 10, 15, 0.9));
@@ -111,7 +105,6 @@
 
         .char-header { display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
         
-        /* === UI優化：呼吸感頭像 === */
         .avatar {
             width: 60px; height: 60px;
             border-radius: 50%;
@@ -120,9 +113,7 @@
             background-position: top center; 
             background-repeat: no-repeat;
             border: 2px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 
-                0 0 10px var(--theme-color), 
-                inset 0 0 10px var(--theme-color);
+            box-shadow: 0 0 10px var(--theme-color), inset 0 0 10px var(--theme-color);
             position: relative; overflow: hidden;
             transition: all 0.5s ease;
             animation: signal-pulse 3s infinite;
@@ -147,7 +138,6 @@
         
         .options-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         
-        /* === UI優化：按鈕互動特效 === */
         .btn { 
             padding: 16px; width: 100%; 
             background: rgba(255,255,255,0.03); 
@@ -178,15 +168,26 @@
         .btn-download { flex: 1; border: 1px solid var(--theme-color); background: rgba(255,255,255,0.1); color: var(--theme-color); font-weight: 700; font-size: 13px; padding: 12px; cursor: pointer;}
         .btn-collect { flex: 1; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.8); font-size: 13px; padding: 12px; cursor: pointer;}
 
-        /* 手機儲存彈窗 */
+        /* === V13.5 修復：確保彈窗絕對置中與圖片限制 === */
         #save-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 2000;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
+            display: none; 
+            /* 關鍵 flex 設定 */
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            padding: 20px; /* 避免貼邊 */
         }
-        #save-overlay img { max-width: 85%; border-radius: 4px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; }
+        #save-overlay img { 
+            max-width: 90%; 
+            max-height: 80vh; /* 關鍵：避免圖片過長超出螢幕 */
+            border-radius: 4px; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.2); 
+            object-fit: contain; /* 保持比例 */
+        }
+        .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); text-align: center; }
+        .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; z-index: 2001; }
 
         .hidden { display: none !important; }
         .cursor { display: inline-block; width: 2px; height: 1em; background: var(--theme-color); animation: blink 1s infinite; vertical-align: sub;}
@@ -275,7 +276,7 @@
 
     <div id="main-interface">
         <div class="system-header">
-            <span>DEEPSPACE_LINK // V13.4</span>
+            <span>DEEPSPACE_LINK // V13.5</span>
             <span>REC_2048.02.14</span>
         </div>
 
@@ -316,8 +317,8 @@
             caleb:   { h: 35,  s: '90%', img: 'avatar_caleb.jpg' } 
         };
 
-        let playerName = ""; // 預設為空，強制輸入
-        let customAvatarUrl = 'avatar_hunter.jpg'; // 預設
+        let playerName = "";
+        let customAvatarUrl = 'avatar_hunter.jpg'; 
 
         const story = {
             start: { theme: "default", type: "narration", text: "【2048.02.14 // 臨空市上空】\n原本應該是充滿巧克力的日子，但對於深空獵人來說，今天卻是個充滿「磁場亂流」的日子。", next: "start_2" },
@@ -330,7 +331,7 @@
                 { t: "聯絡 夏以晝 (Caleb)", n: "caleb_1", theme: "caleb" }
             ]},
             
-            // 劇本內容 (維持不變)
+            // 黎深
             zayne_1: { theme: "zayne", status: "SIGNAL UNSTABLE", type: "narration", text: "通訊器傳來一陣刺耳的白噪音，接著是急促的風雪聲。幾秒後，一個熟悉的、帶著淡淡疲憊卻異常溫柔的低沉嗓音穿透了雜訊。", next: "zayne_2" },
             zayne_2: { theme: "zayne", type: "dialogue", name: "黎深", text: "......別亂動。我知道妳在那裡。", next: "zayne_3" },
             zayne_3: { theme: "zayne", type: "dialogue", name: "黎深", text: "剛下手術台就看到某人的生理數值在亂跳。這種天氣還在外面？如果是為了找我，那我建議妳直接導航到我的懷......咳，我的辦公室。", next: "zayne_4" },
@@ -534,12 +535,10 @@
             if (!inputVal) {
                 ui.hunterNameInput.classList.add('error-shake');
                 
-                // 改動 Label 文字而不是 Placeholder，避免重疊
                 const originalLabel = label.innerText;
                 label.innerText = "⚠️ ID REQUIRED";
                 label.classList.add('error-text');
                 
-                // 震動後還原
                 setTimeout(() => {
                     ui.hunterNameInput.classList.remove('error-shake');
                     label.classList.remove('error-text');
@@ -670,11 +669,12 @@
                 ui.btnGroup.classList.remove('hidden');
                 document.getElementById('btn-restart').onclick = () => show('choice_1');
                 
+                // === V13.5 更新：超高畫質截圖 ===
                 document.getElementById('btn-download').onclick = () => {
                     const card = document.getElementById('card-memory');
                     html2canvas(card, {
                         backgroundColor: null,
-                        scale: 2, 
+                        scale: 4,  // 強制 4 倍解析度
                         useCORS: true 
                     }).then(canvas => {
                         const imgData = canvas.toDataURL("image/png");
@@ -684,7 +684,7 @@
                         const container = document.getElementById('generated-img-container');
                         container.innerHTML = '';
                         container.appendChild(generatedImg);
-                        overlay.style.display = 'flex';
+                        overlay.style.display = 'flex'; // V13.5 已修正 CSS flex 置中
                     }).catch(err => {
                         alert("圖片生成失敗。請確認是否使用本地伺服器瀏覽。");
                         console.error(err);
