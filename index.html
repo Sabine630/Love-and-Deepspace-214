@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Love and Deepspace: 2.14 Project</title>
     
     <meta property="og:title" content="2.14 情人節特別企劃：深空連線">
@@ -22,7 +22,9 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none;}
         
         body {
-            margin: 0; overflow: hidden; height: 100dvh;
+            margin: 0; overflow: hidden; 
+            /* 使用 dvh 確保在手機上能填滿實際可視區域 */
+            height: 100dvh; 
             background: var(--bg-base);
             font-family: 'Noto Sans TC', sans-serif; color: #fff;
             user-select: none;
@@ -43,7 +45,6 @@
         #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #050810; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease; }
         .logo-text { font-family: 'Orbitron', sans-serif; font-size: 24px; letter-spacing: 4px; color: var(--theme-color); margin-bottom: 30px; text-shadow: 0 0 10px rgba(168, 192, 255, 0.5); }
         
-        /* 頭像上傳按鈕 */
         .upload-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; cursor: pointer; transition: 0.3s; border-radius: 50%; }
         .upload-preview {
             width: 80px; height: 80px; border-radius: 50%;
@@ -58,7 +59,6 @@
         .upload-preview:hover { border-style: solid; box-shadow: 0 0 20px var(--theme-color); }
         .upload-label { margin-top: 10px; font-size: 10px; font-family: 'Orbitron', sans-serif; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
 
-        /* 輸入框 */
         .input-group { position: relative; margin-bottom: 25px; width: 200px; }
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: 'Noto Sans TC', sans-serif; font-size: 16px; padding: 8px 0; text-align: center; transition: border-color 0.3s; }
         .input-field:focus { border-bottom-color: var(--theme-color); }
@@ -70,7 +70,6 @@
 
         .start-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--theme-color); color: #fff; padding: 12px 40px; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
         
-        /* 錯誤特效 */
         .error-shake {
             animation: shake 0.4s ease-in-out;
             border-color: var(--error-color) !important;
@@ -156,7 +155,7 @@
         .btn:active::before, .btn:hover::before { width: 100%; }
         .btn:active { transform: scale(0.98); }
 
-        /* 紀念卡 (增加細節以確保高清) */
+        /* === 紀念卡樣式修復 === */
         .memory-card { 
             background: #fff; color: #222; 
             padding: 15px 15px 40px 15px; 
@@ -166,11 +165,12 @@
             text-align: center; 
             display: none; 
             width: 320px; 
-            /* 關鍵：使用 will-change 提示瀏覽器優化渲染 */
-            will-change: transform;
+            /* 提示瀏覽器優化渲染，有助於清晰度 */
+            image-rendering: -webkit-optimize-contrast;
         }
         .memory-inner { background: #f0f0f0; width: 100%; height: 220px; margin-bottom: 15px; overflow: hidden; position: relative; }
-        .memory-art { width: 100%; height: 100%; background-size: cover; background-position: center; background-color: transparent; transition: opacity 0.5s ease; position: relative; z-index: 1; }
+        /* 確保內部圖片填滿且不變形 */
+        .memory-art { width: 100%; height: 100%; background-size: cover; background-position: center top; background-repeat: no-repeat; transition: opacity 0.5s ease; position: relative; z-index: 1; }
         .memory-title { font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 5px; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 5px; display: inline-block; }
         .memory-quote { font-family: 'Dancing Script', cursive; font-size: 22px; color: #111; margin-bottom: 5px; }
         .memory-date { font-family: 'Orbitron', sans-serif; font-size: 10px; color: #999; }
@@ -179,29 +179,35 @@
         .btn-download { flex: 1; border: 1px solid var(--theme-color); background: rgba(255,255,255,0.1); color: var(--theme-color); font-weight: 700; font-size: 13px; padding: 12px; cursor: pointer;}
         .btn-collect { flex: 1; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.8); font-size: 13px; padding: 12px; cursor: pointer;}
 
-        /* === V13.7 修復：強制垂直置中 (使用 Flexbox 和 100dvh) === */
+        /* === V13.8 手機置中終極修復 (使用 100dvh + Flexbox) === */
         #save-overlay {
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; 
-            height: 100dvh; /* 關鍵：使用動態視口高度，解決手機網址列問題 */
+            /* 關鍵：使用 dvh 解決手機網址列造成的偏移 */
+            height: 100dvh; 
             background: rgba(0,0,0,0.95); 
             z-index: 2000;
+            /* 預設隱藏，JS 會改成 flex 來顯示 */
             display: none; 
+            /* 強制內容垂直水平居中 */
             flex-direction: column; 
             justify-content: center; 
             align-items: center;
             padding: 20px; 
+            /* 確保覆蓋在所有元素之上 */
+            backdrop-filter: blur(10px);
         }
-        #save-overlay img { 
-            max-width: 90%; 
-            max-height: 80dvh; /* 限制最大高度 */
+        /* 生成的圖片樣式 */
+        .generated-save-img { 
+            max-width: 90%; /* 左右留邊 */
+            max-height: 80dvh; /* 上下留邊，防止太長 */
             border-radius: 4px; 
-            box-shadow: 0 0 20px rgba(255,255,255,0.2); 
-            object-fit: contain; 
+            box-shadow: 0 0 30px rgba(255,255,255,0.1); 
+            object-fit: contain; /* 保持比例 */
         }
         .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); text-align: center; }
-        .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; z-index: 2001; }
+        .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; z-index: 2001; padding: 10px;}
 
         .hidden { display: none !important; }
         .cursor { display: inline-block; width: 2px; height: 1em; background: var(--theme-color); animation: blink 1s infinite; vertical-align: sub;}
@@ -257,8 +263,9 @@
     </div>
 
     <div id="save-overlay">
-        <div class="close-save" onclick="document.getElementById('save-overlay').style.display='none'">×</div>
-        <div id="generated-img-container"></div>
+        <div class="close-save" onclick="closeSaveOverlay()">×</div>
+        <div id="generated-img-container">
+            </div>
         <div class="save-hint">✧ 長按圖片以儲存 (Long Press to Save) ✧</div>
     </div>
 
@@ -290,7 +297,7 @@
 
     <div id="main-interface">
         <div class="system-header">
-            <span>DEEPSPACE_LINK // V13.7</span>
+            <span>DEEPSPACE_LINK // V13.8</span>
             <span>REC_2048.02.14</span>
         </div>
 
@@ -486,12 +493,12 @@
         function tryPlayAudio() {
             if (isMusicPlaying) return;
             ui.bgm.volume = 0.5;
+            // 嘗試播放，若失敗(瀏覽器阻擋)則在下次互動時重試
             ui.bgm.play().then(() => {
                 isMusicPlaying = true;
                 updateMusicUI();
-                console.log("BGM Started via Interaction");
             }).catch(err => {
-                console.log("Autoplay waiting for interaction...");
+                // 自動播放失敗是正常的，等待使用者下次點擊
             });
         }
 
@@ -516,6 +523,7 @@
             }
         }
 
+        // V13.6: 背景自動靜音
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 ui.bgm.pause(); 
@@ -525,10 +533,12 @@
                 }
             }
         });
-
+        
+        // 在多個地方綁定互動以觸發音樂
         document.querySelector('.upload-container').addEventListener('click', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('focus', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('input', tryPlayAudio);
+        document.querySelector('.start-btn').addEventListener('click', tryPlayAudio);
 
 
         function handleAvatarUpload(input) {
@@ -541,6 +551,7 @@
                     customAvatarUrl = e.target.result;
                     themes.default.img = customAvatarUrl;
                     document.querySelector('.upload-container').classList.remove('error-shake');
+                    tryPlayAudio();
                 }
                 reader.readAsDataURL(input.files[0]);
             }
@@ -575,6 +586,7 @@
                 themes.default.img = customAvatarUrl;
             }
 
+            // 這裡再次嘗試播放，確保進入遊戲時有音樂
             tryPlayAudio(); 
 
             ui.startScreen.style.opacity = '0';
@@ -664,6 +676,11 @@
             }
         }
 
+        // 新增：關閉彈窗的函數
+        function closeSaveOverlay() {
+            document.getElementById('save-overlay').style.display = 'none';
+        }
+
         function showEnding(data) {
             ui.cardNormal.style.display = 'none';
             ui.cardMemory.style.display = 'block';
@@ -683,45 +700,49 @@
                 ui.btnGroup.classList.remove('hidden');
                 document.getElementById('btn-restart').onclick = () => show('choice_1');
                 
-                // === V13.7 終極高清修正：幽靈截圖法 ===
+                // === V13.8 緊急修復：回歸穩定的截圖方式 ===
                 document.getElementById('btn-download').onclick = () => {
-                    const originalCard = document.getElementById('card-memory');
-                    
-                    // 1. 創建一個分身 (Clone)
-                    const clone = originalCard.cloneNode(true);
-                    
-                    // 2. 把分身設定成超高解析度，並移出畫面外
-                    clone.style.position = 'fixed';
-                    clone.style.top = '-9999px'; // 藏在畫面外
-                    clone.style.left = '-9999px';
-                    clone.style.width = '640px'; // 強制寬度 (原本寬度的2倍)
-                    clone.style.transform = 'none'; // 移除旋轉，避免邊緣鋸齒
-                    clone.style.display = 'block';
-                    clone.style.borderRadius = '0'; // 截圖時可以不要圓角，或者保持看你喜好
-                    document.body.appendChild(clone); // 暫時加入頁面
+                    const card = document.getElementById('card-memory');
 
-                    // 3. 截取這個分身
-                    html2canvas(clone, {
+                    // 1. 暫時移除旋轉和陰影，確保截圖邊緣乾淨
+                    const originalTransform = card.style.transform;
+                    const originalShadow = card.style.boxShadow;
+                    card.style.transform = 'none';
+                    card.style.boxShadow = 'none';
+                    card.style.borderRadius = '0'; // 暫時移除圓角，避免白邊
+
+                    // 2. 使用 3 倍採樣進行截圖 (平衡畫質與效能)
+                    html2canvas(card, {
                         backgroundColor: null,
-                        scale: 3, // 用 3 倍採樣，總共就是 640px * 3 = 1920px 寬，非常高清！
-                        useCORS: true 
+                        scale: 3, 
+                        useCORS: true,
+                        allowTaint: true, // 允許跨域圖片，減少錯誤
+                        logging: false // 關閉日誌
                     }).then(canvas => {
+                        // 3. 截圖完成，立刻復原卡片樣式
+                        card.style.transform = originalTransform;
+                        card.style.boxShadow = originalShadow;
+                        card.style.borderRadius = '4px';
+
                         const imgData = canvas.toDataURL("image/png");
                         const generatedImg = document.createElement('img');
                         generatedImg.src = imgData;
-                        
+                        // 加入 class 以便 CSS 控制
+                        generatedImg.classList.add('generated-save-img');
+
                         const overlay = document.getElementById('save-overlay');
                         const container = document.getElementById('generated-img-container');
                         container.innerHTML = '';
                         container.appendChild(generatedImg);
-                        overlay.style.display = 'flex'; // V13.7 已修正 flex 置中
-                        
-                        // 4. 用完把分身刪掉
-                        document.body.removeChild(clone);
+                        // 4. 顯示彈窗 (CSS 的 flex 會自動置中)
+                        overlay.style.display = 'flex';
                     }).catch(err => {
-                        alert("圖片生成失敗。");
+                        // 失敗時也要復原樣式
+                        card.style.transform = originalTransform;
+                        card.style.boxShadow = originalShadow;
+                        card.style.borderRadius = '4px';
+                        alert("圖片生成失敗，請稍後再試。");
                         console.error(err);
-                        document.body.removeChild(clone); // 失敗也要刪掉
                     });
                 };
 
