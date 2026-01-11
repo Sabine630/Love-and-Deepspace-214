@@ -156,8 +156,19 @@
         .btn:active::before, .btn:hover::before { width: 100%; }
         .btn:active { transform: scale(0.98); }
 
-        /* 紀念卡 */
-        .memory-card { background: #fff; color: #222; padding: 15px 15px 40px 15px; border-radius: 4px; transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: none; width: 320px; }
+        /* 紀念卡 (增加細節以確保高清) */
+        .memory-card { 
+            background: #fff; color: #222; 
+            padding: 15px 15px 40px 15px; 
+            border-radius: 4px; 
+            transform: rotate(-2deg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            display: none; 
+            width: 320px; 
+            /* 關鍵：使用 will-change 提示瀏覽器優化渲染 */
+            will-change: transform;
+        }
         .memory-inner { background: #f0f0f0; width: 100%; height: 220px; margin-bottom: 15px; overflow: hidden; position: relative; }
         .memory-art { width: 100%; height: 100%; background-size: cover; background-position: center; background-color: transparent; transition: opacity 0.5s ease; position: relative; z-index: 1; }
         .memory-title { font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 5px; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 5px; display: inline-block; }
@@ -168,23 +179,26 @@
         .btn-download { flex: 1; border: 1px solid var(--theme-color); background: rgba(255,255,255,0.1); color: var(--theme-color); font-weight: 700; font-size: 13px; padding: 12px; cursor: pointer;}
         .btn-collect { flex: 1; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.8); font-size: 13px; padding: 12px; cursor: pointer;}
 
-        /* === V13.5 修復：確保彈窗絕對置中與圖片限制 === */
+        /* === V13.7 修復：強制垂直置中 (使用 Flexbox 和 100dvh) === */
         #save-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 2000;
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; 
+            height: 100dvh; /* 關鍵：使用動態視口高度，解決手機網址列問題 */
+            background: rgba(0,0,0,0.95); 
+            z-index: 2000;
             display: none; 
-            /* 關鍵 flex 設定 */
             flex-direction: column; 
             justify-content: center; 
             align-items: center;
-            padding: 20px; /* 避免貼邊 */
+            padding: 20px; 
         }
         #save-overlay img { 
             max-width: 90%; 
-            max-height: 80vh; /* 關鍵：避免圖片過長超出螢幕 */
+            max-height: 80dvh; /* 限制最大高度 */
             border-radius: 4px; 
             box-shadow: 0 0 20px rgba(255,255,255,0.2); 
-            object-fit: contain; /* 保持比例 */
+            object-fit: contain; 
         }
         .save-hint { margin-top: 20px; color: #fff; font-size: 14px; opacity: 0.8; font-family: 'Noto Sans TC', sans-serif; text-shadow: 0 0 10px rgba(255,255,255,0.5); text-align: center; }
         .close-save { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 30px; cursor: pointer; z-index: 2001; }
@@ -276,7 +290,7 @@
 
     <div id="main-interface">
         <div class="system-header">
-            <span>DEEPSPACE_LINK // V13.5</span>
+            <span>DEEPSPACE_LINK // V13.7</span>
             <span>REC_2048.02.14</span>
         </div>
 
@@ -465,7 +479,6 @@
         };
         let typeInterval;
 
-        // === 音樂控制邏輯 (V13.3) ===
         let isMusicPlaying = false;
         const musicBtn = document.getElementById('music-control');
         const musicText = document.querySelector('.music-text');
@@ -492,18 +505,7 @@
             }
             updateMusicUI();
         }
-// === V13.6 新增：網頁切換時自動暫停/播放 ===
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // 網頁被隱藏（切換分頁或縮小）-> 暫停音樂
-                ui.bgm.pause();
-            } else {
-                // 網頁回到前景 -> 如果原本是開啟狀態，就繼續播放
-                if (isMusicPlaying) {
-                    ui.bgm.play().catch(e => console.log("Resume failed", e));
-                }
-            }
-        });
+
         function updateMusicUI() {
             if (isMusicPlaying) {
                 musicBtn.classList.remove('paused');
@@ -514,12 +516,21 @@
             }
         }
 
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                ui.bgm.pause(); 
+            } else {
+                if (isMusicPlaying) {
+                    ui.bgm.play(); 
+                }
+            }
+        });
+
         document.querySelector('.upload-container').addEventListener('click', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('focus', tryPlayAudio);
         document.getElementById('hunter-name').addEventListener('input', tryPlayAudio);
 
 
-        // 處理頭像上傳
         function handleAvatarUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -529,27 +540,21 @@
                     preview.innerHTML = ''; 
                     customAvatarUrl = e.target.result;
                     themes.default.img = customAvatarUrl;
-                    
-                    // 移除錯誤提示
                     document.querySelector('.upload-container').classList.remove('error-shake');
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // === V13.4 修改：修正錯誤提示邏輯 ===
         function startGame() {
             const inputVal = ui.hunterNameInput.value.trim();
             const label = document.getElementById('name-label');
             
-            // 檢查 1：名字是否為空
             if (!inputVal) {
                 ui.hunterNameInput.classList.add('error-shake');
-                
                 const originalLabel = label.innerText;
                 label.innerText = "⚠️ ID REQUIRED";
                 label.classList.add('error-text');
-                
                 setTimeout(() => {
                     ui.hunterNameInput.classList.remove('error-shake');
                     label.classList.remove('error-text');
@@ -558,7 +563,6 @@
                 return; 
             }
 
-            // 檢查 2：是否上傳了頭像
             if (customAvatarUrl === 'avatar_hunter.jpg') {
                 const uploadContainer = document.querySelector('.upload-container');
                 uploadContainer.classList.add('error-shake');
@@ -566,7 +570,6 @@
                 return;
             }
 
-            // 通過驗證，開始遊戲
             playerName = inputVal;
             if (customAvatarUrl !== 'avatar_hunter.jpg') {
                 themes.default.img = customAvatarUrl;
@@ -680,25 +683,45 @@
                 ui.btnGroup.classList.remove('hidden');
                 document.getElementById('btn-restart').onclick = () => show('choice_1');
                 
-                // === V13.5 更新：超高畫質截圖 ===
+                // === V13.7 終極高清修正：幽靈截圖法 ===
                 document.getElementById('btn-download').onclick = () => {
-                    const card = document.getElementById('card-memory');
-                    html2canvas(card, {
+                    const originalCard = document.getElementById('card-memory');
+                    
+                    // 1. 創建一個分身 (Clone)
+                    const clone = originalCard.cloneNode(true);
+                    
+                    // 2. 把分身設定成超高解析度，並移出畫面外
+                    clone.style.position = 'fixed';
+                    clone.style.top = '-9999px'; // 藏在畫面外
+                    clone.style.left = '-9999px';
+                    clone.style.width = '640px'; // 強制寬度 (原本寬度的2倍)
+                    clone.style.transform = 'none'; // 移除旋轉，避免邊緣鋸齒
+                    clone.style.display = 'block';
+                    clone.style.borderRadius = '0'; // 截圖時可以不要圓角，或者保持看你喜好
+                    document.body.appendChild(clone); // 暫時加入頁面
+
+                    // 3. 截取這個分身
+                    html2canvas(clone, {
                         backgroundColor: null,
-                        scale: 4,  // 強制 4 倍解析度
+                        scale: 3, // 用 3 倍採樣，總共就是 640px * 3 = 1920px 寬，非常高清！
                         useCORS: true 
                     }).then(canvas => {
                         const imgData = canvas.toDataURL("image/png");
                         const generatedImg = document.createElement('img');
                         generatedImg.src = imgData;
+                        
                         const overlay = document.getElementById('save-overlay');
                         const container = document.getElementById('generated-img-container');
                         container.innerHTML = '';
                         container.appendChild(generatedImg);
-                        overlay.style.display = 'flex'; // V13.5 已修正 CSS flex 置中
+                        overlay.style.display = 'flex'; // V13.7 已修正 flex 置中
+                        
+                        // 4. 用完把分身刪掉
+                        document.body.removeChild(clone);
                     }).catch(err => {
-                        alert("圖片生成失敗。請確認是否使用本地伺服器瀏覽。");
+                        alert("圖片生成失敗。");
                         console.error(err);
+                        document.body.removeChild(clone); // 失敗也要刪掉
                     });
                 };
 
